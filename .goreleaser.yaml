@@ -1,0 +1,76 @@
+project_name: go-beanstalk-interface
+
+env:
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - id: api
+    main: ./cmd/api
+    binary: beanstalk-api
+    ldflags:
+      - -s -w
+      - -X "{{ .ModulePath }}/pkg/version.title=Beanstalk API"
+      - -X "{{ .ModulePath }}/pkg/version.tag={{ .Version }}"
+      - -X "{{ .ModulePath }}/pkg/version.commit={{ .ShortCommit }}"
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+
+archives:
+  - id: default
+
+nfpms:
+  - id: default
+    homepage: https://github.com/IvanLutokhin/go-beanstalk-interface
+    maintainer: Ivan Lutokhin <ivan.lutokhin@gmail.com>
+    description: Beanstalk interface
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+
+checksum:
+  name_template: 'checksums.txt'
+
+dockers:
+  - id: api-docker
+    ids:
+      - api
+    goos: linux
+    goarch: amd64
+    image_templates:
+      - "ghcr.io/ivanlutokhin/{{ .ProjectName }}:api"
+      - "ghcr.io/ivanlutokhin/{{ .ProjectName }}:{{ .Major }}-api"
+      - "ghcr.io/ivanlutokhin/{{ .ProjectName }}:{{ .Major }}.{{ .Minor }}-api"
+      - "ghcr.io/ivanlutokhin/{{ .ProjectName }}:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-api"
+    dockerfile: build/api/Dockerfile
+    use: docker
+    build_flag_templates:
+      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.url=https://github.com/IvanLutokhin/{{ .ProjectName }}
+      - --label=org.opencontainers.image.licenses=MIT
+      - --platform=linux/amd64
+    extra_files:
+      - configs/api.config.yaml.dist
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-dev"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

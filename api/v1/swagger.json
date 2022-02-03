@@ -1,0 +1,1009 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation of Beanstalk API.",
+    "title": "Beanstalk API",
+    "version": "1"
+  },
+  "basePath": "/api/v1",
+  "paths": {
+    "/jobs": {
+      "post": {
+        "description": "Creates a new job",
+        "tags": [
+          "jobs"
+        ],
+        "operationId": "create-job",
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateJobRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/CreateJobSuccessResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          }
+        }
+      }
+    },
+    "/jobs/{id}": {
+      "get": {
+        "description": "Gets data of the specified job",
+        "tags": [
+          "jobs"
+        ],
+        "operationId": "get-job",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "ID",
+            "description": "Job identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "example": "raw",
+            "x-go-name": "Format",
+            "description": "Job data format",
+            "name": "format",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetJobSuccessResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "404": {
+            "$ref": "#/responses/NotFoundResponse"
+          }
+        }
+      }
+    },
+    "/jobs/{id}/bury": {
+      "post": {
+        "description": "Bury the specified job",
+        "tags": [
+          "jobs"
+        ],
+        "operationId": "bury-job",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "ID",
+            "description": "Job identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/BuryJobRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/SuccessResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "404": {
+            "$ref": "#/responses/NotFoundResponse"
+          }
+        }
+      }
+    },
+    "/jobs/{id}/delete": {
+      "post": {
+        "description": "Delete the specified job",
+        "tags": [
+          "jobs"
+        ],
+        "operationId": "delete-job",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "ID",
+            "description": "Job identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/SuccessResponse"
+          },
+          "404": {
+            "$ref": "#/responses/NotFoundResponse"
+          }
+        }
+      }
+    },
+    "/jobs/{id}/kick": {
+      "post": {
+        "description": "Kick the specified job",
+        "tags": [
+          "jobs"
+        ],
+        "operationId": "kick-job",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "ID",
+            "description": "Job identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/SuccessResponse"
+          },
+          "404": {
+            "$ref": "#/responses/NotFoundResponse"
+          }
+        }
+      }
+    },
+    "/jobs/{id}/release": {
+      "post": {
+        "description": "Release the specified job",
+        "tags": [
+          "jobs"
+        ],
+        "operationId": "release-job",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "ID",
+            "description": "Job identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ReleaseJobRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/SuccessResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "404": {
+            "$ref": "#/responses/NotFoundResponse"
+          }
+        }
+      }
+    },
+    "/jobs/{id}/stats": {
+      "get": {
+        "description": "Statistics of specified job",
+        "tags": [
+          "jobs"
+        ],
+        "operationId": "job-stats",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "ID",
+            "description": "Job identifier",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/JobStatsSuccessResponse"
+          },
+          "404": {
+            "$ref": "#/responses/NotFoundResponse"
+          }
+        }
+      }
+    },
+    "/server/stats": {
+      "get": {
+        "description": "Beanstalk server statistics",
+        "tags": [
+          "server"
+        ],
+        "operationId": "server-stats",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/ServerStatsSuccessResponse"
+          }
+        }
+      }
+    },
+    "/tubes": {
+      "get": {
+        "description": "List of exists tubes",
+        "tags": [
+          "tubes"
+        ],
+        "operationId": "list-of-tubes",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/TubesSuccessResponse"
+          }
+        }
+      }
+    },
+    "/tubes/{name}/stats": {
+      "get": {
+        "description": "Gets statistics of specified tube",
+        "tags": [
+          "tubes"
+        ],
+        "operationId": "tube-stats",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "default",
+            "x-go-name": "Name",
+            "description": "Tube name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/TubeStatsSuccessResponse"
+          },
+          "404": {
+            "$ref": "#/responses/NotFoundResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BuryJobRequest": {
+      "description": "Request types",
+      "type": "object",
+      "properties": {
+        "priority": {
+          "type": "integer",
+          "format": "uint32",
+          "x-go-name": "Priority"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "CreateJobRequest": {
+      "description": "Request types",
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/JobData"
+        },
+        "delay": {
+          "$ref": "#/definitions/Duration"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "uint32",
+          "x-go-name": "Priority"
+        },
+        "ttr": {
+          "$ref": "#/definitions/Duration"
+        },
+        "tube": {
+          "type": "string",
+          "x-go-name": "Tube"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "CreateJobResponse": {
+      "description": "Response types",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "tube": {
+          "type": "string",
+          "x-go-name": "Tube"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "Duration": {
+      "description": "A Duration represents the elapsed time between two instants\nas an int64 nanosecond count. The representation limits the\nlargest representable duration to approximately 290 years.",
+      "type": "integer",
+      "format": "int64",
+      "x-go-package": "time"
+    },
+    "ErrorData": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Errors"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "JobData": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "x-go-name": "Format"
+        },
+        "payload": {
+          "type": "string",
+          "x-go-name": "Payload"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "JobResponse": {
+      "description": "Response types",
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/JobData"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "JobStatsResponse": {
+      "description": "Response types",
+      "type": "object",
+      "properties": {
+        "stats": {
+          "$ref": "#/definitions/StatsJob"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "ReleaseJobRequest": {
+      "description": "Request types",
+      "type": "object",
+      "properties": {
+        "delay": {
+          "$ref": "#/definitions/Duration"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "uint32",
+          "x-go-name": "Priority"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "ServerStatsResponse": {
+      "description": "Response types",
+      "type": "object",
+      "properties": {
+        "stats": {
+          "$ref": "#/definitions/Stats"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "Stats": {
+      "type": "object",
+      "properties": {
+        "binlog-current-index": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BinlogCurrentIndex"
+        },
+        "binlog-max-size": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BinlogMaxSize"
+        },
+        "binlog-oldest-index": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BinlogOldestIndex"
+        },
+        "binlog-records-migrated": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BinlogRecordsMigrated"
+        },
+        "binlog-records-written": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BinlogRecordsWritten"
+        },
+        "cmd-bury": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdBury"
+        },
+        "cmd-delete": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdDelete"
+        },
+        "cmd-ignore": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdIgnore"
+        },
+        "cmd-kick": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdKick"
+        },
+        "cmd-list-tube-used": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdListTubeUsed"
+        },
+        "cmd-list-tubes": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdListTubes"
+        },
+        "cmd-list-tubes-watched": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdListTubesWatched"
+        },
+        "cmd-pause-tune": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPauseTune"
+        },
+        "cmd-peek": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPeek"
+        },
+        "cmd-peek-buried": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPeekBuried"
+        },
+        "cmd-peek-delayed": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPeekDelayed"
+        },
+        "cmd-peek-ready": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPeekReady"
+        },
+        "cmd-peek-reserve": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPeekReserve"
+        },
+        "cmd-peek-use": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPeekUse"
+        },
+        "cmd-put": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPut"
+        },
+        "cmd-release": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdRelease"
+        },
+        "cmd-stats": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdStats"
+        },
+        "cmd-stats-job": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdStatsJob"
+        },
+        "cmd-stats-tube": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdStatsTube"
+        },
+        "cmd-watch": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdWatch"
+        },
+        "current-connections": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentConnections"
+        },
+        "current-jobs-buried": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsBuried"
+        },
+        "current-jobs-delayed": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsDelayed"
+        },
+        "current-jobs-ready": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsReady"
+        },
+        "current-jobs-reserved": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsReserved"
+        },
+        "current-jobs-urgent": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsUrgent"
+        },
+        "current-producers": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentProducers"
+        },
+        "current-tubes": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentTubes"
+        },
+        "current-waiting": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentWaiting"
+        },
+        "current-workers": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentWorkers"
+        },
+        "draining": {
+          "type": "boolean",
+          "x-go-name": "Draining"
+        },
+        "hostname": {
+          "type": "string",
+          "x-go-name": "Hostname"
+        },
+        "id": {
+          "type": "string",
+          "x-go-name": "ID"
+        },
+        "job-timeouts": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "JobTimeouts"
+        },
+        "max-job-size": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "MaxJobSize"
+        },
+        "os": {
+          "type": "string",
+          "x-go-name": "OS"
+        },
+        "pid": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PID"
+        },
+        "platform": {
+          "type": "string",
+          "x-go-name": "Platform"
+        },
+        "rusage-stime": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "RUsageSTime"
+        },
+        "rusage-utime": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "RUsageUTime"
+        },
+        "total-connections": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TotalConnections"
+        },
+        "total-jobs": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TotalJobs"
+        },
+        "uptime": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Uptime"
+        },
+        "version": {
+          "type": "string",
+          "x-go-name": "Version"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk"
+    },
+    "StatsJob": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Age"
+        },
+        "buries": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Buries"
+        },
+        "delay": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Delay"
+        },
+        "file": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "File"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "kicks": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Kicks"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Priority"
+        },
+        "releases": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Releases"
+        },
+        "reserves": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Reserves"
+        },
+        "state": {
+          "type": "string",
+          "x-go-name": "State"
+        },
+        "time_left": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TimeLeft"
+        },
+        "timeouts": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Timeouts"
+        },
+        "ttr": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TTR"
+        },
+        "tube": {
+          "type": "string",
+          "x-go-name": "Tube"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk"
+    },
+    "StatsTube": {
+      "type": "object",
+      "properties": {
+        "cmd-delete": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdDelete"
+        },
+        "cmd-pause-tube": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdPauseTube"
+        },
+        "current-jobs-buried": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsBuried"
+        },
+        "current-jobs-delayed": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsDelayed"
+        },
+        "current-jobs-ready": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsReady"
+        },
+        "current-jobs-reserved": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsReserved"
+        },
+        "current-jobs-urgent": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentJobsUrgent"
+        },
+        "current-using": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentUsing"
+        },
+        "current-waiting": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentWaiting"
+        },
+        "current-watching": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CurrentWatching"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "pause": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Pause"
+        },
+        "pause-time-left": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "PauseTimeLeft"
+        },
+        "total-jobs": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TotalJobs"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk"
+    },
+    "TubeStatsResponse": {
+      "description": "Response types",
+      "type": "object",
+      "properties": {
+        "stats": {
+          "$ref": "#/definitions/StatsTube"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    },
+    "TubesResponse": {
+      "description": "Response types",
+      "type": "object",
+      "properties": {
+        "tubes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Tubes"
+        }
+      },
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+    }
+  },
+  "responses": {
+    "BadRequestResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/definitions/ErrorData"
+          },
+          "message": {
+            "type": "string",
+            "default": "Bad Request",
+            "x-go-name": "Message"
+          },
+          "status": {
+            "type": "string",
+            "default": "failure",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "CreateJobSuccessResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/definitions/CreateJobResponse"
+          },
+          "status": {
+            "type": "string",
+            "default": "success",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "GetJobSuccessResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/definitions/JobResponse"
+          },
+          "status": {
+            "type": "string",
+            "default": "success",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "JobStatsSuccessResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/definitions/JobStatsResponse"
+          },
+          "status": {
+            "type": "string",
+            "default": "success",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "NotFoundResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "default": "Not Found",
+            "x-go-name": "Message"
+          },
+          "status": {
+            "type": "string",
+            "default": "failure",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "ServerStatsSuccessResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/definitions/ServerStatsResponse"
+          },
+          "status": {
+            "type": "string",
+            "default": "success",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "SuccessResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "default": "success",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "TubeStatsSuccessResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/definitions/TubeStatsResponse"
+          },
+          "status": {
+            "type": "string",
+            "default": "success",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "TubesSuccessResponse": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/definitions/TubesResponse"
+          },
+          "status": {
+            "type": "string",
+            "default": "success",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    }
+  }
+}
