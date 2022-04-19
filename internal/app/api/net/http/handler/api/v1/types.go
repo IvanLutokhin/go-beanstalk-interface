@@ -99,7 +99,7 @@ type TubeStatsSwaggerParameters struct {
 }
 
 // swagger:response TubeStatsSuccessResponse
-type SwaggerTubeStatsResponse struct {
+type TubeStatsSuccessSwaggerResponse struct {
 	// in: body
 	Response struct {
 		// default: success
