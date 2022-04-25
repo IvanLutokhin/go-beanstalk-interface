@@ -123,7 +123,7 @@ func TestGetTubeStatsNotFound(t *testing.T) {
 func TestCreateJob(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs", strings.NewReader(`{"tube": "default", "data": {"format": "raw", "payload": "test"}}`))
+	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs", strings.NewReader(`{"tube": "default", "data": "test"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -161,19 +161,6 @@ func TestCreateJobBadJSON(t *testing.T) {
 	AssertResponseFailure(t, recorder, http.StatusBadRequest)
 }
 
-func TestCreateJobUnknownDataFormat(t *testing.T) {
-	recorder := httptest.NewRecorder()
-
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs", strings.NewReader(`{"tube": "default", "data": {"format": "unknown", "payload": "test"}}`))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	MockBeanstalkHandler(CreateJob()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusBadRequest)
-}
-
 func TestGetJob(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
@@ -200,59 +187,9 @@ func TestGetJob(t *testing.T) {
 		t.Error("unexpected data in response")
 	}
 
-	format := data.(map[string]interface{})["format"]
-	if !strings.EqualFold("raw", format.(string)) {
-		t.Errorf("expected data format 'raw', but got '%s'", format)
+	if !strings.EqualFold("test", data.(string)) {
+		t.Errorf("excpeted data 'test', but got '%s'", data)
 	}
-}
-
-func TestGetJobWithSpecifiedFormat(t *testing.T) {
-	recorder := httptest.NewRecorder()
-
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/jobs/1?format=base64", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
-	})
-
-	MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
-
-	AssertResponseSuccess(t, recorder, http.StatusOK)
-
-	body, err := UnmarshalBody(recorder)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	data, ok := body.Data.(map[string]interface{})["data"]
-	if !ok {
-		t.Error("unexpected data in response")
-	}
-
-	format := data.(map[string]interface{})["format"]
-	if !strings.EqualFold("base64", format.(string)) {
-		t.Errorf("expected data format 'raw', but got '%s'", format)
-	}
-}
-
-func TestGetJobWithUnknownFormat(t *testing.T) {
-	recorder := httptest.NewRecorder()
-
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/jobs/1?format=unknown", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
-	})
-
-	MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusBadRequest)
 }
 
 func TestGetJobNotFound(t *testing.T) {

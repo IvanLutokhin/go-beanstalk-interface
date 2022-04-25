@@ -79,7 +79,7 @@ func (c *Client) Peek(id int) (beanstalk.Job, error) {
 		return beanstalk.Job{}, beanstalk.ErrNotFound
 
 	default:
-		return beanstalk.Job{ID: id}, nil
+		return beanstalk.Job{ID: id, Data: []byte("test")}, nil
 	}
 }
 

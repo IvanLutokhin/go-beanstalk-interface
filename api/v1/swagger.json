@@ -60,14 +60,6 @@
             "name": "id",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "string",
-            "example": "raw",
-            "x-go-name": "Format",
-            "description": "Job data format",
-            "name": "format",
-            "in": "query"
           }
         ],
         "responses": {
@@ -323,7 +315,8 @@
       "type": "object",
       "properties": {
         "data": {
-          "$ref": "#/definitions/JobData"
+          "type": "string",
+          "x-go-name": "Data"
         },
         "delay": {
           "$ref": "#/definitions/Duration"
@@ -378,26 +371,13 @@
       },
       "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
     },
-    "JobData": {
-      "type": "object",
-      "properties": {
-        "format": {
-          "type": "string",
-          "x-go-name": "Format"
-        },
-        "payload": {
-          "type": "string",
-          "x-go-name": "Payload"
-        }
-      },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
-    },
     "JobResponse": {
       "description": "Response types",
       "type": "object",
       "properties": {
         "data": {
-          "$ref": "#/definitions/JobData"
+          "type": "string",
+          "x-go-name": "Data"
         }
       },
       "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"

@@ -111,19 +111,12 @@ func CreateJob() beanstalk.Handler {
 			return
 		}
 
-		data, err := MarshalJobData(request.Data)
-		if err != nil {
-			writer.JSON(w, http.StatusBadRequest, response.BadRequest(ErrorData{[]string{err.Error()}}))
-
-			return
-		}
-
 		tube, err := c.Use(request.Tube)
 		if err != nil {
 			panic(err)
 		}
 
-		id, err := c.Put(request.Priority, request.Delay, request.TTR, data)
+		id, err := c.Put(request.Priority, request.Delay, request.TTR, []byte(request.Data))
 		if err != nil {
 			panic(err)
 		}
@@ -149,11 +142,6 @@ func GetJob() beanstalk.Handler {
 			panic(err)
 		}
 
-		format := r.URL.Query().Get("format")
-		if format == "" {
-			format = JobDataFormatRAW
-		}
-
 		job, err := c.Peek(id)
 		if err != nil {
 			if errors.Is(err, beanstalk.ErrNotFound) {
@@ -165,14 +153,7 @@ func GetJob() beanstalk.Handler {
 			}
 		}
 
-		data, err := UnmarshalJobData(format, job.Data)
-		if err != nil {
-			writer.JSON(w, http.StatusBadRequest, response.BadRequest(ErrorData{[]string{err.Error()}}))
-
-			return
-		}
-
-		writer.JSON(w, http.StatusOK, response.Success(JobResponse{data}))
+		writer.JSON(w, http.StatusOK, response.Success(JobResponse{string(job.Data)}))
 	})
 }
 
