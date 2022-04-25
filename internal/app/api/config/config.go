@@ -58,6 +58,14 @@ type HttpConfig struct {
 	ReadTimeout     time.Duration `yaml:"read_timeout"`
 	WriteTimeout    time.Duration `yaml:"write_timeout"`
 	IdleTimeout     time.Duration `yaml:"idle_timeout"`
+	Cors            CorsConfig    `yaml:"cors"`
+}
+
+type CorsConfig struct {
+	AllowOrigins     []string `yaml:"allow_origins"`
+	AllowMethods     []string `yaml:"allow_methods"`
+	AllowHeaders     []string `yaml:"allow_headers"`
+	AllowCredentials bool     `yaml:"allow_credentials"`
 }
 
 func New() *Config {

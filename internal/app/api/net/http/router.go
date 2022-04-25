@@ -15,6 +15,7 @@ import (
 )
 
 func NewRouter(
+	cors *middleware.Cors,
 	logging *middleware.Logging,
 	recovery *middleware.Recovery,
 	pool beanstalk.Pool,
@@ -26,6 +27,7 @@ func NewRouter(
 	router.Use(
 		recovery.Middleware,
 		logging.Middleware,
+		cors.Middleware,
 	)
 
 	registerAPIRoutes(router, pool)

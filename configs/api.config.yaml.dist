@@ -28,3 +28,8 @@ http:
   read_timeout: 30
   write_timeout: 30
   idle_timeout: 60
+  cors:
+    allow_origins: ["*"]
+    allow_methods: ["HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"]
+    allow_headers: ["*"]
+    allow_credentials: false
