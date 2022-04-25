@@ -25,6 +25,7 @@ func New() *fx.App {
 			log.NewLogger,
 			beanstalk.NewPool,
 			http.NewRouter,
+			middleware.NewCors,
 			middleware.NewLogging,
 			middleware.NewRecovery,
 		),

@@ -30,7 +30,6 @@ func (m *Logging) Middleware(next http.Handler) http.Handler {
 		start := time.Now()
 
 		lw := &LoggingResponseWriter{ResponseWriter: w, StatusCode: http.StatusOK}
-		lw.Header().Set("Access-Control-Allow-Origin", "*")
 
 		next.ServeHTTP(lw, r)
 

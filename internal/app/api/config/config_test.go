@@ -1,6 +1,7 @@
 package config
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -34,7 +35,13 @@ func TestUnmarshal(t *testing.T) {
 		"  listen_addresses: ':9999'\n" +
 		"  read_timeout: 30\n" +
 		"  write_timeout: 30\n" +
-		"  idle_timeout: 60\n\n"
+		"  idle_timeout: 60\n" +
+		"  cors:\n" +
+		"    allow_origins: [ \"*\" ]\n" +
+		"    allow_methods: [ \"HEAD\", \"OPTIONS\", \"GET\", \"POST\", \"PUT\", \"PATCH\", \"DELETE\" ]\n" +
+		"    allow_headers: [ \"*\" ]\n" +
+		"    allow_credentials: false\n" +
+		"\n"
 
 	c, err := Unmarshal(strings.NewReader(s))
 	if err != nil {
@@ -115,5 +122,21 @@ func TestUnmarshal(t *testing.T) {
 
 	if c.Http.IdleTimeout != 60 {
 		t.Errorf("http.idle_timeout: expected '60', but got '%d'", c.Http.IdleTimeout)
+	}
+
+	if !reflect.DeepEqual(c.Http.Cors.AllowOrigins, []string{"*"}) {
+		t.Errorf("http.cors.allow_origins: expected '%v', but got '%v'", []string{"*"}, c.Http.Cors.AllowOrigins)
+	}
+
+	if !reflect.DeepEqual(c.Http.Cors.AllowMethods, []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}) {
+		t.Errorf("http.cors.allow_methods: expected '%v', but got '%v'", []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}, c.Http.Cors.AllowMethods)
+	}
+
+	if !reflect.DeepEqual(c.Http.Cors.AllowHeaders, []string{"*"}) {
+		t.Errorf("http.cors.allow_headers: expected '%v', but got '%v'", []string{"*"}, c.Http.Cors.AllowHeaders)
+	}
+
+	if c.Http.Cors.AllowCredentials != false {
+		t.Errorf("http.cors.allow_credentials: expected 'false', but got '%v'", c.Http.Cors.AllowCredentials)
 	}
 }
