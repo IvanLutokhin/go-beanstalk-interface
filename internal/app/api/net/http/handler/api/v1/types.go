@@ -5,18 +5,8 @@ import (
 	"time"
 )
 
-const (
-	JobDataFormatRAW    = "raw"
-	JobDataFormatBase64 = "base64"
-)
-
 type ErrorData struct {
 	Errors []string `json:"errors"`
-}
-
-type JobData struct {
-	Format  string `json:"format"`
-	Payload string `json:"payload"`
 }
 
 // Request types
@@ -26,7 +16,7 @@ type (
 		Priority uint32        `json:"priority"`
 		Delay    time.Duration `json:"delay"`
 		TTR      time.Duration `json:"ttr"`
-		Data     JobData       `json:"data"`
+		Data     string        `json:"data"`
 	}
 
 	BuryJobRequest struct {
@@ -59,7 +49,7 @@ type (
 	}
 
 	JobResponse struct {
-		Data JobData `json:"data"`
+		Data string `json:"data"`
 	}
 
 	JobStatsResponse struct {
@@ -131,11 +121,6 @@ type GetJobSwaggerParameters struct {
 	// in: path
 	// example: 1
 	ID int `json:"id"`
-	// Job data format
-	//
-	// in: query
-	// example: raw
-	Format string `json:"format"`
 }
 
 // swagger:response GetJobSuccessResponse
