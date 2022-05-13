@@ -1,0 +1,55 @@
+extend type Mutation {
+    createJob(input: CreateJobInput): CreateJobPayload!
+    buryJob(input: BuryJobInput): BuryJobPayload!
+    deleteJob(input: DeleteJobInput): DeleteJobPayload!
+    kickJob(input: KickJobInput): KickJobPayload!
+    releaseJob(input: ReleaseJobInput): ReleaseJobPayload!
+}
+
+input CreateJobInput {
+    tube: String!
+    priority: Int!
+    delay: Int!
+    ttr: Int!
+    data: String!
+}
+
+type CreateJobPayload {
+    tube: String!
+    id: Int!
+}
+
+input BuryJobInput {
+    id: Int!
+    priority: Int!
+}
+
+type BuryJobPayload {
+    id: Int!
+}
+
+input DeleteJobInput {
+    id: Int!
+}
+
+type DeleteJobPayload {
+    id: Int!
+}
+
+input KickJobInput {
+    id: Int!
+}
+
+type KickJobPayload {
+    id: Int!
+}
+
+input ReleaseJobInput {
+    id: Int!
+    priority: Int!
+    delay: Int!
+}
+
+type ReleaseJobPayload {
+    id: Int!
+}

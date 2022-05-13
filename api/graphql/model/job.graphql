@@ -1,0 +1,46 @@
+type Job {
+    id: Int!
+    data: String!
+    stats: JobStats!
+}
+
+type JobStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.StatsJob") {
+    "is the name of the tube that contains this job"
+    tube: String!
+
+    "is \"ready\" or \"delayed\" or \"reserved\" or \"buried\""
+    state: String!
+
+    "is the priority value set by the put, release, or bury commands"
+    priority: Int!
+
+    "is the time in seconds since the put command that created this job"
+    age: Int!
+
+    "is the integer number of seconds to wait before putting this job in the ready queue"
+    delay: Int!
+
+    "time to run -- is the integer number of seconds a worker is allowed to run this job"
+    ttr: Int!
+
+    "is the number of seconds left until the server puts this job into the ready queue"
+    timeLeft: Int!
+
+    "is the number of the earliest binlog file containing this job"
+    file: Int!
+
+    "is the number of times this job has been reserved"
+    reserves: Int!
+
+    "is the number of times this job has timed out during a reservation"
+    timeouts: Int!
+
+    "is the number of times a client has released this job from a reservation"
+    releases: Int!
+
+    "is the number of times this job has been buried"
+    buries: Int!
+
+    "is the number of times this job has been kicked"
+    kicks: Int!
+}

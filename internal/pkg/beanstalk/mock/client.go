@@ -84,15 +84,15 @@ func (c *Client) Peek(id int) (beanstalk.Job, error) {
 }
 
 func (c *Client) PeekReady() (beanstalk.Job, error) {
-	return beanstalk.Job{}, nil
+	return beanstalk.Job{ID: 1}, nil
 }
 
 func (c *Client) PeekDelayed() (beanstalk.Job, error) {
-	return beanstalk.Job{}, nil
+	return beanstalk.Job{ID: 1}, nil
 }
 
 func (c *Client) PeekBuried() (beanstalk.Job, error) {
-	return beanstalk.Job{}, nil
+	return beanstalk.Job{ID: 1}, nil
 }
 
 func (c *Client) Kick(bound int) (int, error) {

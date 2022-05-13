@@ -1,0 +1,48 @@
+type Tube {
+    name: String!
+    stats: TubeStats!
+    readyJob: Job
+    delayedJob: Job
+    buriedJob: Job
+}
+
+type TubeStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.StatsTube") {
+    "is the number of ready jobs with priority < 1024"
+    currentJobsUrgent: Int!
+
+    "is the number of jobs in the ready queue in this tube"
+    currentJobsReady: Int!
+
+    "is the number of jobs reserved by all clients in this tube"
+    currentJobsReserved: Int!
+
+    "is the number of delayed jobs in this tube"
+    currentJobsDelayed: Int!
+
+    "is the number of buried jobs in this tube"
+    currentJobsBuried: Int!
+
+    "is the cumulative count of jobs created in this tube in the current beanstalkd process"
+    totalJobs: Int!
+
+    "is the number of open connections that are currently using this tube"
+    currentUsing: Int!
+
+    "is the number of open connections that have issued a reserve command while watching this tube but not yet received a response"
+    currentWaiting: Int!
+
+    "is the number of open connections that are currently watching this tube"
+    currentWatching: Int!
+
+    "is the number of seconds the tube has been paused for"
+    pause: Int!
+
+    "is the cumulative number of delete commands for this tube"
+    cmdDelete: Int!
+
+    "is the cumulative number of pause-tube commands for this tube"
+    cmdPauseTube: Int!
+
+    "is the number of seconds until the tube is un-paused"
+    pauseTimeLeft: Int!
+}
