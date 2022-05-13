@@ -19,13 +19,13 @@ import (
 func TestGetEmbedFiles(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/swagger.json", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/swagger.json", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	http.StripPrefix("/api/v1", GetEmbedFiles(http.FS(embed.FSFunc(func(name string) (fs.File, error) {
-		return api.V1EmbedFS.Open(path.Join("v1", name))
+	http.StripPrefix("/api/system/v1", GetEmbedFiles(http.FS(embed.FSFunc(func(name string) (fs.File, error) {
+		return api.SystemV1EmbedFS.Open(path.Join("system/v1", name))
 	})))).ServeHTTP(recorder, request)
 
 	if code := recorder.Code; http.StatusOK != code {
@@ -36,7 +36,7 @@ func TestGetEmbedFiles(t *testing.T) {
 func TestGetServerStats(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/server/stats", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/server/stats", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestGetServerStats(t *testing.T) {
 func TestGetTubes(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/tubes", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/tubes", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestGetTubes(t *testing.T) {
 func TestGetTubeStats(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/tubes/default/stats", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/tubes/default/stats", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestGetTubeStats(t *testing.T) {
 func TestGetTubeStatsNotFound(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/tubes/not_found/stats", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/tubes/not_found/stats", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func TestCreateJob(t *testing.T) {
 func TestCreateJobBadJSON(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs", strings.NewReader("test"))
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs", strings.NewReader("test"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func TestCreateJobBadJSON(t *testing.T) {
 func TestGetJob(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/jobs/1", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -195,7 +195,7 @@ func TestGetJob(t *testing.T) {
 func TestGetJobNotFound(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/jobs/999", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/999", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -212,7 +212,7 @@ func TestGetJobNotFound(t *testing.T) {
 func TestBuryJob(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/1/bury", strings.NewReader(`{"priority": 0}`))
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/bury", strings.NewReader(`{"priority": 0}`))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,7 +229,7 @@ func TestBuryJob(t *testing.T) {
 func TestBuryJobBadJson(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/1/bury", strings.NewReader("test"))
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/bury", strings.NewReader("test"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +246,7 @@ func TestBuryJobBadJson(t *testing.T) {
 func TestBuryJobNotFound(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/999/bury", strings.NewReader(`{"priority": 100}`))
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/bury", strings.NewReader(`{"priority": 100}`))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -263,7 +263,7 @@ func TestBuryJobNotFound(t *testing.T) {
 func TestDeleteJob(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/1/delete", nil)
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/delete", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -280,7 +280,7 @@ func TestDeleteJob(t *testing.T) {
 func TestDeleteJobNotFound(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/999/delete", nil)
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/delete", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,7 +297,7 @@ func TestDeleteJobNotFound(t *testing.T) {
 func TestKickJob(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/1/kick", nil)
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/kick", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -314,7 +314,7 @@ func TestKickJob(t *testing.T) {
 func TestKickJobNotFound(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/999/kick", nil)
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/kick", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -331,7 +331,7 @@ func TestKickJobNotFound(t *testing.T) {
 func TestReleaseJob(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/1/release", strings.NewReader(`{"priority": 0, "delay": 0}`))
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/release", strings.NewReader(`{"priority": 0, "delay": 0}`))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -348,7 +348,7 @@ func TestReleaseJob(t *testing.T) {
 func TestReleaseJobBadJson(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/1/release", strings.NewReader("test"))
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/release", strings.NewReader("test"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -365,7 +365,7 @@ func TestReleaseJobBadJson(t *testing.T) {
 func TestReleaseJobNotFound(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs/999/release", strings.NewReader(`{"priority": 100, "delay": 100}`))
+	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/release", strings.NewReader(`{"priority": 100, "delay": 100}`))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -382,7 +382,7 @@ func TestReleaseJobNotFound(t *testing.T) {
 func TestGetJobsStats(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/jobs/1/stats", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/1/stats", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -408,7 +408,7 @@ func TestGetJobsStats(t *testing.T) {
 func TestGetJobStatsNotFound(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/v1/jobs/999/stats", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/999/stats", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

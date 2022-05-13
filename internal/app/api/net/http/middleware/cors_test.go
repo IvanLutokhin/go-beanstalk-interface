@@ -16,7 +16,7 @@ func TestCors_Middleware(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/system/v1", nil)
+	request, err := http.NewRequest(http.MethodGet, "/api", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
