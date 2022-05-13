@@ -78,348 +78,364 @@ func TestGetTubes(t *testing.T) {
 }
 
 func TestGetTubeStats(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("tube stats", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/tubes/default/stats", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodGet, "/api/system/v1/tubes/default/stats", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	request = mux.SetURLVars(request, map[string]string{
-		"name": "default",
+		request = mux.SetURLVars(request, map[string]string{
+			"name": "default",
+		})
+
+		MockBeanstalkHandler(GetTubeStats()).ServeHTTP(recorder, request)
+
+		AssertResponseSuccess(t, recorder, http.StatusOK)
+
+		body, err := UnmarshalBody(recorder)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if _, ok := body.Data.(map[string]interface{})["stats"]; !ok {
+			t.Error("unexpected data in response")
+		}
 	})
 
-	MockBeanstalkHandler(GetTubeStats()).ServeHTTP(recorder, request)
+	t.Run("tube stats / not found", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseSuccess(t, recorder, http.StatusOK)
+		request, err := http.NewRequest(http.MethodGet, "/api/system/v1/tubes/not_found/stats", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	body, err := UnmarshalBody(recorder)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request = mux.SetURLVars(request, map[string]string{
+			"name": "not_found",
+		})
 
-	if _, ok := body.Data.(map[string]interface{})["stats"]; !ok {
-		t.Error("unexpected data in response")
-	}
-}
+		MockBeanstalkHandler(GetTubeStats()).ServeHTTP(recorder, request)
 
-func TestGetTubeStatsNotFound(t *testing.T) {
-	recorder := httptest.NewRecorder()
-
-	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/tubes/not_found/stats", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	request = mux.SetURLVars(request, map[string]string{
-		"name": "not_found",
+		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
-
-	MockBeanstalkHandler(GetTubeStats()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusNotFound)
 }
 
 func TestCreateJob(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("create job", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs", strings.NewReader(`{"tube": "default", "data": "test"}`))
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodPost, "/api/v1/jobs", strings.NewReader(`{"tube": "default", "data": "test"}`))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	MockBeanstalkHandler(CreateJob()).ServeHTTP(recorder, request)
+		MockBeanstalkHandler(CreateJob()).ServeHTTP(recorder, request)
 
-	AssertResponseSuccess(t, recorder, http.StatusCreated)
+		AssertResponseSuccess(t, recorder, http.StatusCreated)
 
-	body, err := UnmarshalBody(recorder)
-	if err != nil {
-		t.Fatal(err)
-	}
+		body, err := UnmarshalBody(recorder)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	tube := body.Data.(map[string]interface{})["tube"]
-	if !strings.EqualFold("default", tube.(string)) {
-		t.Errorf("excpeted tube 'default', but got '%s'", tube)
-	}
+		tube := body.Data.(map[string]interface{})["tube"]
+		if !strings.EqualFold("default", tube.(string)) {
+			t.Errorf("excpeted tube 'default', but got '%s'", tube)
+		}
 
-	id := body.Data.(map[string]interface{})["id"]
-	if 1 != id.(float64) {
-		t.Errorf("excpeted job id '1', but got '%d'", id)
-	}
-}
+		id := body.Data.(map[string]interface{})["id"]
+		if 1 != id.(float64) {
+			t.Errorf("excpeted job id '1', but got '%d'", id)
+		}
+	})
 
-func TestCreateJobBadJSON(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("create job / bad JSON", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs", strings.NewReader("test"))
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs", strings.NewReader("test"))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	MockBeanstalkHandler(CreateJob()).ServeHTTP(recorder, request)
+		MockBeanstalkHandler(CreateJob()).ServeHTTP(recorder, request)
 
-	AssertResponseFailure(t, recorder, http.StatusBadRequest)
+		AssertResponseFailure(t, recorder, http.StatusBadRequest)
+	})
 }
 
 func TestGetJob(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("get job", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/1", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/1", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
+
+		MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
+
+		AssertResponseSuccess(t, recorder, http.StatusOK)
+
+		body, err := UnmarshalBody(recorder)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		data, ok := body.Data.(map[string]interface{})["data"]
+		if !ok {
+			t.Error("unexpected data in response")
+		}
+
+		if !strings.EqualFold("test", data.(string)) {
+			t.Errorf("excpeted data 'test', but got '%s'", data)
+		}
 	})
 
-	MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
+	t.Run("get job / not found", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseSuccess(t, recorder, http.StatusOK)
+		request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/999", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	body, err := UnmarshalBody(recorder)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "999",
+		})
 
-	data, ok := body.Data.(map[string]interface{})["data"]
-	if !ok {
-		t.Error("unexpected data in response")
-	}
+		MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
 
-	if !strings.EqualFold("test", data.(string)) {
-		t.Errorf("excpeted data 'test', but got '%s'", data)
-	}
-}
-
-func TestGetJobNotFound(t *testing.T) {
-	recorder := httptest.NewRecorder()
-
-	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/999", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "999",
+		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
-
-	MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusNotFound)
 }
 
 func TestBuryJob(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("bury job", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/bury", strings.NewReader(`{"priority": 0}`))
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/bury", strings.NewReader(`{"priority": 0}`))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
+
+		MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
+
+		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
 
-	MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
+	t.Run("bury job / bad JSON", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseSuccess(t, recorder, http.StatusOK)
-}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/bury", strings.NewReader("test"))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-func TestBuryJobBadJson(t *testing.T) {
-	recorder := httptest.NewRecorder()
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/bury", strings.NewReader("test"))
-	if err != nil {
-		t.Fatal(err)
-	}
+		MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
 
-	MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
+	t.Run("bury job / not found", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseFailure(t, recorder, http.StatusBadRequest)
-}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/bury", strings.NewReader(`{"priority": 100}`))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-func TestBuryJobNotFound(t *testing.T) {
-	recorder := httptest.NewRecorder()
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "999",
+		})
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/bury", strings.NewReader(`{"priority": 100}`))
-	if err != nil {
-		t.Fatal(err)
-	}
+		MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "999",
+		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
-
-	MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusNotFound)
 }
 
 func TestDeleteJob(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("delete job", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/delete", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/delete", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
+
+		MockBeanstalkHandler(DeleteJob()).ServeHTTP(recorder, request)
+
+		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
 
-	MockBeanstalkHandler(DeleteJob()).ServeHTTP(recorder, request)
+	t.Run("delete job / not found", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseSuccess(t, recorder, http.StatusOK)
-}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/delete", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-func TestDeleteJobNotFound(t *testing.T) {
-	recorder := httptest.NewRecorder()
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "999",
+		})
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/delete", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+		MockBeanstalkHandler(DeleteJob()).ServeHTTP(recorder, request)
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "999",
+		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
-
-	MockBeanstalkHandler(DeleteJob()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusNotFound)
 }
 
 func TestKickJob(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("kick job", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/kick", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/kick", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
+
+		MockBeanstalkHandler(KickJob()).ServeHTTP(recorder, request)
+
+		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
 
-	MockBeanstalkHandler(KickJob()).ServeHTTP(recorder, request)
+	t.Run("kick job / not found", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseSuccess(t, recorder, http.StatusOK)
-}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/kick", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-func TestKickJobNotFound(t *testing.T) {
-	recorder := httptest.NewRecorder()
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "999",
+		})
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/kick", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+		MockBeanstalkHandler(KickJob()).ServeHTTP(recorder, request)
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "999",
+		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
-
-	MockBeanstalkHandler(KickJob()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusNotFound)
 }
 
 func TestReleaseJob(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("release job", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/release", strings.NewReader(`{"priority": 0, "delay": 0}`))
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/release", strings.NewReader(`{"priority": 0, "delay": 0}`))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
+
+		MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
+
+		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
 
-	MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
+	t.Run("release job / bad JSON", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseSuccess(t, recorder, http.StatusOK)
-}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/release", strings.NewReader("test"))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-func TestReleaseJobBadJson(t *testing.T) {
-	recorder := httptest.NewRecorder()
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/1/release", strings.NewReader("test"))
-	if err != nil {
-		t.Fatal(err)
-	}
+		MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
 
-	MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
+	t.Run("release job / not found", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseFailure(t, recorder, http.StatusBadRequest)
-}
+		request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/release", strings.NewReader(`{"priority": 100, "delay": 100}`))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-func TestReleaseJobNotFound(t *testing.T) {
-	recorder := httptest.NewRecorder()
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "999",
+		})
 
-	request, err := http.NewRequest(http.MethodPost, "/api/system/v1/jobs/999/release", strings.NewReader(`{"priority": 100, "delay": 100}`))
-	if err != nil {
-		t.Fatal(err)
-	}
+		MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "999",
+		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
-
-	MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusNotFound)
 }
 
 func TestGetJobsStats(t *testing.T) {
-	recorder := httptest.NewRecorder()
+	t.Run("get job stats", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/1/stats", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/1/stats", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "1",
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "1",
+		})
+
+		MockBeanstalkHandler(GetJobStats()).ServeHTTP(recorder, request)
+
+		AssertResponseSuccess(t, recorder, http.StatusOK)
+
+		body, err := UnmarshalBody(recorder)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if _, ok := body.Data.(map[string]interface{})["stats"]; !ok {
+			t.Error("unexpected data in response")
+		}
 	})
 
-	MockBeanstalkHandler(GetJobStats()).ServeHTTP(recorder, request)
+	t.Run("get job stats / not found", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
 
-	AssertResponseSuccess(t, recorder, http.StatusOK)
+		request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/999/stats", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	body, err := UnmarshalBody(recorder)
-	if err != nil {
-		t.Fatal(err)
-	}
+		request = mux.SetURLVars(request, map[string]string{
+			"id": "999",
+		})
 
-	if _, ok := body.Data.(map[string]interface{})["stats"]; !ok {
-		t.Error("unexpected data in response")
-	}
-}
+		MockBeanstalkHandler(GetJobStats()).ServeHTTP(recorder, request)
 
-func TestGetJobStatsNotFound(t *testing.T) {
-	recorder := httptest.NewRecorder()
-
-	request, err := http.NewRequest(http.MethodGet, "/api/system/v1/jobs/999/stats", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	request = mux.SetURLVars(request, map[string]string{
-		"id": "999",
+		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
-
-	MockBeanstalkHandler(GetJobStats()).ServeHTTP(recorder, request)
-
-	AssertResponseFailure(t, recorder, http.StatusNotFound)
 }
 
 // Helpers
