@@ -1,0 +1,152 @@
+type Server {
+    stats: ServerStats!
+}
+
+type ServerStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.Stats") {
+    "is the number of ready jobs with priority < 1024"
+    currentJobsUrgent: Int!
+
+    "is the number of jobs in the ready queue"
+    currentJobsReady: Int!
+
+    "is the number of jobs reserved by all clients"
+    currentJobsReserved: Int!
+
+    "is the number of delayed jobs"
+    currentJobsDelayed: Int!
+
+    "is the number of buried jobs"
+    currentJobsBuried: Int!
+
+    "is the cumulative number of put commands"
+    cmdPut: Int!
+
+    "is the cumulative number of peek commands"
+    cmdPeek: Int!
+
+    "is the cumulative number of peek-ready commands"
+    cmdPeekReady: Int!
+
+    "is the cumulative number of peek-delayed commands"
+    cmdPeekDelayed: Int!
+
+    "is the cumulative number of peek-buried commands"
+    cmdPeekBuried: Int!
+
+    "is the cumulative number of reserve commands"
+    cmdPeekReserve: Int!
+
+    "is the cumulative number of use commands"
+    cmdPeekUse: Int!
+
+    "is the cumulative number of watch commands"
+    cmdWatch: Int!
+
+    "is the cumulative number of ignore commands"
+    cmdIgnore: Int!
+
+    "is the cumulative number of delete commands"
+    cmdDelete: Int!
+
+    "is the cumulative number of release commands"
+    cmdRelease: Int!
+
+    "is the cumulative number of bury commands"
+    cmdBury: Int!
+
+    "is the cumulative number of kick commands"
+    cmdKick: Int!
+
+    "is the cumulative number of stats commands"
+    cmdStats: Int!
+
+    "is the cumulative number of stats-job commands"
+    cmdStatsJob: Int!
+
+    "is the cumulative number of stats-tube commands"
+    cmdStatsTube: Int!
+
+    "is the cumulative number of list-tubes commands"
+    cmdListTubes: Int!
+
+    "is the cumulative number of list-tube-used commands"
+    cmdListTubeUsed: Int!
+
+    "is the cumulative number of list-tubes-watched commands"
+    cmdListTubesWatched: Int!
+
+    "is the cumulative number of pause-tube command"
+    cmdPauseTube: Int!
+
+    "is the cumulative count of times a job has timed out"
+    jobTimeouts: Int!
+
+    "is the cumulative count of jobs created"
+    totalJobs: Int!
+
+    "is the maximum number of bytes in a job"
+    maxJobSize: Int!
+
+    "is the number of currently-existing tubes"
+    currentTubes: Int!
+
+    "is the number of currently open connections"
+    currentConnections: Int!
+
+    "is the number of open connections that have each issued at least one put command"
+    currentProducers: Int!
+
+    "is the number of open connections that have each issued at least one reserve command"
+    currentWorkers: Int!
+
+    "is the number of open connections that have issued a reserve command but not yet received a response"
+    currentWaiting: Int!
+
+    "is the cumulative count of connections"
+    totalConnections: Int!
+
+    "is the process id of the server"
+    pid: Int!
+
+    "is the version string of the server"
+    version: String!
+
+    "is the cumulative user CPU time of this process in seconds and microseconds"
+    rUsageUTime: Float!
+
+    "is the cumulative system CPU time of this process in seconds and microseconds"
+    rUsageSTime: Float!
+
+    "is the number of seconds since this server process started running"
+    uptime: Int!
+
+    "is the index of the oldest binlog file needed to store the current jobs"
+    binlogOldestIndex: Int!
+
+    "is the index of the current binlog file being written to. If binlog is not active this value will be 0"
+    binlogCurrentIndex: Int!
+
+    "is the maximum size in bytes a binlog file is allowed to get before a new binlog file is opened"
+    binlogMaxSize: Int!
+
+    "is the cumulative number of records written to the binlog"
+    binlogRecordsWritten: Int!
+
+    "is the cumulative number of records written as part of compaction"
+    binlogRecordsMigrated: Int!
+
+    "is set to \"true\" if the server is in drain mode, \"false\" otherwise"
+    draining: Boolean!
+
+    "is a random id string for this server process, generated every time beanstalkd process starts"
+    id: String!
+
+    "is the hostname of the machine as determined by uname"
+    hostname: String!
+
+    "is the OS version as determined by uname"
+    os: String!
+
+    "is the machine architecture as determined by uname"
+    platform: String!
+}

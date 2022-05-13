@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/api"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/graphql"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
@@ -47,6 +48,8 @@ func registerAPIRoutes(router *mux.Router, pool beanstalk.Pool) {
 	})
 
 	registerSystemV1Routes(sr, pool)
+
+	registerGraphQLRoutes(sr, pool)
 }
 
 func registerSystemV1Routes(router *mux.Router, pool beanstalk.Pool) {
@@ -66,4 +69,10 @@ func registerSystemV1Routes(router *mux.Router, pool beanstalk.Pool) {
 	sr.PathPrefix("/").Handler(http.StripPrefix("/api/system/v1", v1.GetEmbedFiles(http.FS(embed.FSFunc(func(name string) (fs.File, error) {
 		return api.SystemV1EmbedFS.Open(path.Join("system/v1", name))
 	})))))
+}
+
+func registerGraphQLRoutes(router *mux.Router, pool beanstalk.Pool) {
+	sr := router.PathPrefix("/graphql").Subrouter()
+
+	sr.Methods(http.MethodOptions, http.MethodGet, http.MethodPost).Path("").Handler(graphql.Handler(pool))
 }

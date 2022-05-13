@@ -1,0 +1,17 @@
+extend type Query {
+    server: Server!
+    tubes: TubeConnection
+    tube(name: String!): Tube!
+    job(id: Int!): Job!
+    readyJob(tube: String!): Job!
+    delayedJob(tube: String!): Job!
+    buriedJob(tube: String!): Job!
+}
+
+type TubeConnection {
+    edges: [TubeEdge!]!
+}
+
+type TubeEdge {
+    node: Tube!
+}
