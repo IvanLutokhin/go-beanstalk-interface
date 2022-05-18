@@ -4,7 +4,7 @@ import (
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/IvanLutokhin/go-beanstalk"
-	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
 	"strings"
@@ -17,7 +17,7 @@ func TestMutationResolver_CreateJob(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -58,7 +58,7 @@ func TestMutationResolver_BuryJob(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -107,7 +107,7 @@ func TestMutationResolver_DeleteJob(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -153,7 +153,7 @@ func TestMutationResolver_KickJob(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -199,7 +199,7 @@ func TestMutationResolver_ReleaseJob(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 

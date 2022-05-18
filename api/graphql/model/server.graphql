@@ -1,5 +1,5 @@
 type Server {
-    stats: ServerStats!
+    stats: ServerStats! @goField(forceResolver: true)
 }
 
 type ServerStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.Stats") {
