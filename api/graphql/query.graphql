@@ -3,9 +3,6 @@ extend type Query {
     tubes: TubeConnection
     tube(name: String!): Tube!
     job(id: Int!): Job!
-    readyJob(tube: String!): Job!
-    delayedJob(tube: String!): Job!
-    buriedJob(tube: String!): Job!
 }
 
 type TubeConnection {

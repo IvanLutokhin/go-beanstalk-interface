@@ -1,7 +1,7 @@
 type Job {
     id: Int!
     data: String!
-    stats: JobStats!
+    stats: JobStats! @goField(forceResolver: true)
 }
 
 type JobStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.StatsJob") {

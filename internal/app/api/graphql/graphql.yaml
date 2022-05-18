@@ -1,6 +1,10 @@
 schema:
   - ../../../../api/graphql/**/*.graphql
 
+exec:
+  filename: executor/generated.go
+  package: executor
+
 model:
   filename: model/generated.go
   package: model

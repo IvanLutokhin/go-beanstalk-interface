@@ -1,9 +1,9 @@
 type Tube {
     name: String!
-    stats: TubeStats!
-    readyJob: Job
-    delayedJob: Job
-    buriedJob: Job
+    stats: TubeStats! @goField(forceResolver: true)
+    readyJob: Job @goField(forceResolver: true)
+    delayedJob: Job @goField(forceResolver: true)
+    buriedJob: Job @goField(forceResolver: true)
 }
 
 type TubeStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.StatsTube") {

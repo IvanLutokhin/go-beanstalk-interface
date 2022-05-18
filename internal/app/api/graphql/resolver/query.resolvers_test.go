@@ -4,7 +4,7 @@ import (
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/IvanLutokhin/go-beanstalk"
-	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
 	"strings"
@@ -17,7 +17,7 @@ func TestQueryResolver_Server(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -92,7 +92,7 @@ func TestQueryResolver_Tubes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -171,7 +171,7 @@ func TestQueryResolver_Tube(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -244,7 +244,7 @@ func TestQueryResolver_Job(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -279,141 +279,6 @@ query Job ($id: Int!) {
 	c.MustPost(q, &response, client.Var("id", 1))
 
 	if id := response.Job.ID; id != 1 {
-		t.Errorf("expected job id '1', but got '%v'", id)
-	}
-}
-
-func TestQueryResolver_ReadyJob(t *testing.T) {
-	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
-
-	c := client.New(h)
-
-	q := `
-query ReadyJob ($tube: String!) {
-    readyJob(tube: $tube) {
-		id,
-		data,
-		stats {
-			tube,
-			state,
-			priority,
-			age,
-			delay,
-			ttr,
-			timeLeft,
-			file,
-			reserves,
-			timeouts,
-			releases,
-			buries,
-			kicks
-		}
-	}
-}
-`
-
-	var response struct {
-		ReadyJob *model.Job
-	}
-
-	c.MustPost(q, &response, client.Var("tube", "default"))
-
-	if id := response.ReadyJob.ID; id != 1 {
-		t.Errorf("expected job id '1', but got '%v'", id)
-	}
-}
-
-func TestQueryResolver_DelayedJob(t *testing.T) {
-	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
-
-	c := client.New(h)
-
-	q := `
-query DelayedJob ($tube: String!) {
-    delayedJob(tube: $tube) {
-		id,
-		data,
-		stats {
-			tube,
-			state,
-			priority,
-			age,
-			delay,
-			ttr,
-			timeLeft,
-			file,
-			reserves,
-			timeouts,
-			releases,
-			buries,
-			kicks
-		}
-	}
-}
-`
-
-	var response struct {
-		DelayedJob *model.Job
-	}
-
-	c.MustPost(q, &response, client.Var("tube", "default"))
-
-	if id := response.DelayedJob.ID; id != 1 {
-		t.Errorf("expected job id '1', but got '%v'", id)
-	}
-}
-
-func TestQueryResolver_BuriedJob(t *testing.T) {
-	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
-
-	c := client.New(h)
-
-	q := `
-query BuriedJob ($tube: String!) {
-    buriedJob(tube: $tube) {
-		id,
-		data,
-		stats {
-			tube,
-			state,
-			priority,
-			age,
-			delay,
-			ttr,
-			timeLeft,
-			file,
-			reserves,
-			timeouts,
-			releases,
-			buries,
-			kicks
-		}
-	}
-}
-`
-
-	var response struct {
-		BuriedJob *model.Job
-	}
-
-	c.MustPost(q, &response, client.Var("tube", "default"))
-
-	if id := response.BuriedJob.ID; id != 1 {
 		t.Errorf("expected job id '1', but got '%v'", id)
 	}
 }
