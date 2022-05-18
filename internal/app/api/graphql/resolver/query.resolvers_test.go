@@ -3,6 +3,7 @@ package resolver
 import (
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
@@ -11,7 +12,12 @@ import (
 )
 
 func TestQueryResolver_Server(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -81,7 +87,12 @@ query Server() {
 }
 
 func TestQueryResolver_Tubes(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -155,7 +166,12 @@ fragment job on Job {
 }
 
 func TestQueryResolver_Tube(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -223,7 +239,12 @@ fragment job on Job {
 }
 
 func TestQueryResolver_Job(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -263,7 +284,12 @@ query Job ($id: Int!) {
 }
 
 func TestQueryResolver_ReadyJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -303,7 +329,12 @@ query ReadyJob ($tube: String!) {
 }
 
 func TestQueryResolver_DelayedJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -343,7 +374,12 @@ query DelayedJob ($tube: String!) {
 }
 
 func TestQueryResolver_BuriedJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 

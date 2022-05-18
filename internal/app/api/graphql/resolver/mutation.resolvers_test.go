@@ -3,6 +3,7 @@ package resolver
 import (
 	"github.com/99designs/gqlgen/client"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
@@ -11,7 +12,12 @@ import (
 )
 
 func TestMutationResolver_CreateJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -47,7 +53,12 @@ mutation CreateJob($tube: String!, $priority: Int!, $delay: Int!, $ttr: Int!, $d
 }
 
 func TestMutationResolver_BuryJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -91,7 +102,12 @@ mutation BuryJob($id: Int!, $priority: Int!) {
 }
 
 func TestMutationResolver_DeleteJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -132,7 +148,12 @@ mutation DeleteJob($id: Int!) {
 }
 
 func TestMutationResolver_KickJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -173,7 +194,12 @@ mutation KickJob($id: Int!) {
 }
 
 func TestMutationResolver_ReleaseJob(t *testing.T) {
-	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(&mock.Pool{Client: &mock.Client{}})}))
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: NewResolver(pool)}))
 
 	c := client.New(h)
 

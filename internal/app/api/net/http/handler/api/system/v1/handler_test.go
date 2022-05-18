@@ -41,7 +41,12 @@ func TestGetServerStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	MockBeanstalkHandler(GetServerStats()).ServeHTTP(recorder, request)
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	beanstalk.NewHTTPHandlerAdapter(pool, GetServerStats()).ServeHTTP(recorder, request)
 
 	AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -63,7 +68,12 @@ func TestGetTubes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	MockBeanstalkHandler(GetTubes()).ServeHTTP(recorder, request)
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	beanstalk.NewHTTPHandlerAdapter(pool, GetTubes()).ServeHTTP(recorder, request)
 
 	AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -78,6 +88,11 @@ func TestGetTubes(t *testing.T) {
 }
 
 func TestGetTubeStats(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("tube stats", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -90,7 +105,7 @@ func TestGetTubeStats(t *testing.T) {
 			"name": "default",
 		})
 
-		MockBeanstalkHandler(GetTubeStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, GetTubeStats()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -116,13 +131,18 @@ func TestGetTubeStats(t *testing.T) {
 			"name": "not_found",
 		})
 
-		MockBeanstalkHandler(GetTubeStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, GetTubeStats()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
 }
 
 func TestCreateJob(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("create job", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -131,7 +151,7 @@ func TestCreateJob(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		MockBeanstalkHandler(CreateJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, CreateJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusCreated)
 
@@ -159,13 +179,18 @@ func TestCreateJob(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		MockBeanstalkHandler(CreateJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, CreateJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
 }
 
 func TestGetJob(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("get job", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -178,7 +203,7 @@ func TestGetJob(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, GetJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -209,13 +234,18 @@ func TestGetJob(t *testing.T) {
 			"id": "999",
 		})
 
-		MockBeanstalkHandler(GetJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, GetJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
 }
 
 func TestBuryJob(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("bury job", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -228,7 +258,7 @@ func TestBuryJob(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, BuryJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -245,7 +275,7 @@ func TestBuryJob(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, BuryJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
@@ -262,13 +292,18 @@ func TestBuryJob(t *testing.T) {
 			"id": "999",
 		})
 
-		MockBeanstalkHandler(BuryJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, BuryJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
 }
 
 func TestDeleteJob(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("delete job", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -281,7 +316,7 @@ func TestDeleteJob(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(DeleteJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, DeleteJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -298,13 +333,18 @@ func TestDeleteJob(t *testing.T) {
 			"id": "999",
 		})
 
-		MockBeanstalkHandler(DeleteJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, DeleteJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
 }
 
 func TestKickJob(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("kick job", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -317,7 +357,7 @@ func TestKickJob(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(KickJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, KickJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -334,13 +374,18 @@ func TestKickJob(t *testing.T) {
 			"id": "999",
 		})
 
-		MockBeanstalkHandler(KickJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, KickJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
 }
 
 func TestReleaseJob(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("release job", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -353,7 +398,7 @@ func TestReleaseJob(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, ReleaseJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -370,7 +415,7 @@ func TestReleaseJob(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, ReleaseJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
@@ -387,13 +432,18 @@ func TestReleaseJob(t *testing.T) {
 			"id": "999",
 		})
 
-		MockBeanstalkHandler(ReleaseJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, ReleaseJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
 }
 
 func TestGetJobsStats(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 1, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Run("get job stats", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
@@ -406,7 +456,7 @@ func TestGetJobsStats(t *testing.T) {
 			"id": "1",
 		})
 
-		MockBeanstalkHandler(GetJobStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, GetJobStats()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -432,17 +482,13 @@ func TestGetJobsStats(t *testing.T) {
 			"id": "999",
 		})
 
-		MockBeanstalkHandler(GetJobStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, GetJobStats()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
 }
 
 // Helpers
-
-func MockBeanstalkHandler(handler beanstalk.Handler) http.Handler {
-	return beanstalk.NewHTTPHandlerAdapter(&mock.Pool{Client: &mock.Client{}}, handler)
-}
 
 func UnmarshalBody(recorder *httptest.ResponseRecorder) (response.Response, error) {
 	var body response.Response
