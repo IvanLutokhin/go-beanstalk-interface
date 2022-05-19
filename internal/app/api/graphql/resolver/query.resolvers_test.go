@@ -6,6 +6,8 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/testutil"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
 	"strings"
 	"testing"
@@ -83,7 +85,11 @@ query Server() {
 		Server *model.Server
 	}{}
 
-	c.MustPost(q, &response)
+	c.MustPost(
+		q,
+		&response,
+		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadServer})),
+	)
 }
 
 func TestQueryResolver_Tubes(t *testing.T) {
@@ -158,7 +164,11 @@ fragment job on Job {
 		}
 	}
 
-	c.MustPost(q, &response)
+	c.MustPost(
+		q,
+		&response,
+		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadTubes, security.ScopeReadJobs})),
+	)
 
 	if count := len(response.Tubes.Edges); count != 1 {
 		t.Errorf("expected tubes '1', but got '%v'", count)
@@ -231,7 +241,12 @@ fragment job on Job {
 		Tube *model.Tube
 	}
 
-	c.MustPost(q, &response, client.Var("name", "default"))
+	c.MustPost(
+		q,
+		&response,
+		client.Var("name", "default"),
+		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadTubes, security.ScopeReadJobs})),
+	)
 
 	if name := response.Tube.Name; !strings.EqualFold("default", name) {
 		t.Errorf("expected tube name 'default', but got '%v'", name)
@@ -276,7 +291,12 @@ query Job ($id: Int!) {
 		Job *model.Job
 	}
 
-	c.MustPost(q, &response, client.Var("id", 1))
+	c.MustPost(
+		q,
+		&response,
+		client.Var("id", 1),
+		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs})),
+	)
 
 	if id := response.Job.ID; id != 1 {
 		t.Errorf("expected job id '1', but got '%v'", id)

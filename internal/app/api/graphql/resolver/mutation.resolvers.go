@@ -5,12 +5,17 @@ package resolver
 
 import (
 	"context"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"time"
 
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
 )
 
 func (r *mutationResolver) CreateJob(ctx context.Context, input *model.CreateJobInput) (*model.CreateJobPayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -29,6 +34,10 @@ func (r *mutationResolver) CreateJob(ctx context.Context, input *model.CreateJob
 }
 
 func (r *mutationResolver) BuryJob(ctx context.Context, input *model.BuryJobInput) (*model.BuryJobPayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -42,6 +51,10 @@ func (r *mutationResolver) BuryJob(ctx context.Context, input *model.BuryJobInpu
 }
 
 func (r *mutationResolver) DeleteJob(ctx context.Context, input *model.DeleteJobInput) (*model.DeleteJobPayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -55,6 +68,10 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, input *model.DeleteJob
 }
 
 func (r *mutationResolver) KickJob(ctx context.Context, input *model.KickJobInput) (*model.KickJobPayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -68,6 +85,10 @@ func (r *mutationResolver) KickJob(ctx context.Context, input *model.KickJobInpu
 }
 
 func (r *mutationResolver) ReleaseJob(ctx context.Context, input *model.ReleaseJobInput) (*model.ReleaseJobPayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()

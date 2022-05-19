@@ -19,6 +19,13 @@
   "paths": {
     "/jobs": {
       "post": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Creates a new job",
         "tags": [
           "jobs"
@@ -45,6 +52,13 @@
     },
     "/jobs/{id}": {
       "get": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Gets data of the specified job",
         "tags": [
           "jobs"
@@ -77,6 +91,13 @@
     },
     "/jobs/{id}/bury": {
       "post": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Bury the specified job",
         "tags": [
           "jobs"
@@ -116,6 +137,13 @@
     },
     "/jobs/{id}/delete": {
       "post": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Delete the specified job",
         "tags": [
           "jobs"
@@ -145,6 +173,13 @@
     },
     "/jobs/{id}/kick": {
       "post": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Kick the specified job",
         "tags": [
           "jobs"
@@ -174,6 +209,13 @@
     },
     "/jobs/{id}/release": {
       "post": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Release the specified job",
         "tags": [
           "jobs"
@@ -213,6 +255,13 @@
     },
     "/jobs/{id}/stats": {
       "get": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Statistics of specified job",
         "tags": [
           "jobs"
@@ -242,6 +291,13 @@
     },
     "/server/stats": {
       "get": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Beanstalk server statistics",
         "tags": [
           "server"
@@ -256,6 +312,13 @@
     },
     "/tubes": {
       "get": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "List of exists tubes",
         "tags": [
           "tubes"
@@ -270,6 +333,13 @@
     },
     "/tubes/{name}/stats": {
       "get": {
+        "security": [
+          {
+            "basicAuth": [
+              "[]"
+            ]
+          }
+        ],
         "description": "Gets statistics of specified tube",
         "tags": [
           "tubes"
@@ -984,6 +1054,11 @@
           }
         }
       }
+    }
+  },
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
     }
   }
 }

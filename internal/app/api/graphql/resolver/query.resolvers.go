@@ -5,15 +5,23 @@ package resolver
 
 import (
 	"context"
-
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
 
 func (r *queryResolver) Server(ctx context.Context) (*model.Server, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadServer}); err != nil {
+		return nil, err
+	}
+
 	return &model.Server{}, nil
 }
 
 func (r *queryResolver) Tubes(ctx context.Context) (*model.TubeConnection, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadTubes}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -37,10 +45,18 @@ func (r *queryResolver) Tubes(ctx context.Context) (*model.TubeConnection, error
 }
 
 func (r *queryResolver) Tube(ctx context.Context, name string) (*model.Tube, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadTubes}); err != nil {
+		return nil, err
+	}
+
 	return &model.Tube{Name: name}, nil
 }
 
 func (r *queryResolver) Job(ctx context.Context, id int) (*model.Job, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()

@@ -41,6 +41,16 @@ func TestUnmarshal(t *testing.T) {
 		"    allow_methods: [ \"HEAD\", \"OPTIONS\", \"GET\", \"POST\", \"PUT\", \"PATCH\", \"DELETE\" ]\n" +
 		"    allow_headers: [ \"*\" ]\n" +
 		"    allow_credentials: false\n" +
+		"security:\n" +
+		"  bcrypt_cost: 10\n" +
+		"  users:\n" +
+		"    - name: \"admin\"\n" +
+		"      password: \"!plain:admin\"\n" +
+		"      scopes:\n" +
+		"        - read:server\n" +
+		"        - read:tubes\n" +
+		"        - read:jobs\n" +
+		"        - write:jobs\n" +
 		"\n"
 
 	c, err := Unmarshal(strings.NewReader(s))
@@ -138,5 +148,25 @@ func TestUnmarshal(t *testing.T) {
 
 	if c.Http.Cors.AllowCredentials != false {
 		t.Errorf("http.cors.allow_credentials: expected 'false', but got '%v'", c.Http.Cors.AllowCredentials)
+	}
+
+	if c.Security.BCryptCost != 10 {
+		t.Errorf("security.bcrypt_cost: expected '10', but got '%v'", c.Security.BCryptCost)
+	}
+
+	if l := len(c.Security.Users); l != 1 {
+		t.Errorf("security.users: expected count '1', but got '%v'", l)
+	}
+
+	if !strings.EqualFold("admin", c.Security.Users[0].Name) {
+		t.Errorf("security.users[0].name: expected 'admin', but got '%v'", c.Security.Users[0].Name)
+	}
+
+	if !strings.EqualFold("!plain:admin", c.Security.Users[0].Password) {
+		t.Errorf("security.users[0].password: expected '!plain:admin', but got '%v'", c.Security.Users[0].Password)
+	}
+
+	if !reflect.DeepEqual(c.Security.Users[0].Scopes, []string{"read:server", "read:tubes", "read:jobs", "write:jobs"}) {
+		t.Errorf("security.users[0].scopes: expected '%v', but got '%v'", []string{"read:server", "read:tubes", "read:jobs", "write:jobs"}, c.Security.Users[0].Scopes)
 	}
 }

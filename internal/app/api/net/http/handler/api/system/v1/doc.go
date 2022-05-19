@@ -12,5 +12,9 @@
 // Produces:
 // - application/json
 //
+// SecurityDefinitions:
+//    basicAuth:
+//       type: basic
+//
 // swagger:meta
 package v1

@@ -33,3 +33,14 @@ http:
     allow_methods: ["HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"]
     allow_headers: ["*"]
     allow_credentials: false
+
+security:
+  bcrypt_cost: 10
+  users:
+    - name: "admin"
+      password: "!plain:admin"
+      scopes:
+        - read:server
+        - read:tubes
+        - read:jobs
+        - write:jobs

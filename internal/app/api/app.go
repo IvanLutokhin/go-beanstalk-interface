@@ -8,6 +8,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/log"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/pkg/version"
 	"go.uber.org/fx"
 	"time"
@@ -28,9 +29,11 @@ func New() *fx.App {
 			middleware.NewCors,
 			middleware.NewLogging,
 			middleware.NewRecovery,
+			security.NewUserProvider,
 		),
 		fx.Invoke(
 			RegisterHooks,
+			security.RegisterHooks,
 			beanstalk.RegisterHooks,
 			http.RegisterHooks,
 		),

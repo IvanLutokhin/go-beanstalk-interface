@@ -20,6 +20,14 @@ func BadRequest(data interface{}) Response {
 	return Response{Status: StatusFailure, Message: "Bad Request", Data: data}
 }
 
+func Unauthorized() Response {
+	return Response{Status: StatusFailure, Message: "Unauthorized"}
+}
+
+func Forbidden(data interface{}) Response {
+	return Response{Status: StatusFailure, Message: "Forbidden", Data: data}
+}
+
 func NotFound() Response {
 	return Response{Status: StatusFailure, Message: "Not Found"}
 }

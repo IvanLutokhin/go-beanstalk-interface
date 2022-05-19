@@ -6,13 +6,17 @@ package resolver
 import (
 	"context"
 	"errors"
-
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
 
 func (r *tubeResolver) Stats(ctx context.Context, obj *model.Tube) (*beanstalk.StatsTube, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadTubes}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -26,6 +30,10 @@ func (r *tubeResolver) Stats(ctx context.Context, obj *model.Tube) (*beanstalk.S
 }
 
 func (r *tubeResolver) ReadyJob(ctx context.Context, obj *model.Tube) (*model.Job, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -53,6 +61,10 @@ func (r *tubeResolver) ReadyJob(ctx context.Context, obj *model.Tube) (*model.Jo
 }
 
 func (r *tubeResolver) DelayedJob(ctx context.Context, obj *model.Tube) (*model.Job, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
@@ -80,6 +92,10 @@ func (r *tubeResolver) DelayedJob(ctx context.Context, obj *model.Tube) (*model.
 }
 
 func (r *tubeResolver) BuriedJob(ctx context.Context, obj *model.Tube) (*model.Job, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()
