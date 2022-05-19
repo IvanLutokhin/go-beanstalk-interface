@@ -18,6 +18,7 @@ type Config struct {
 	Logger    LoggerConfig    `yaml:"logger"`
 	Beanstalk BeanstalkConfig `yaml:"beanstalk"`
 	Http      HttpConfig      `yaml:"http"`
+	Security  SecurityConfig  `yaml:"security"`
 }
 
 type LoggerConfig struct {
@@ -66,6 +67,17 @@ type CorsConfig struct {
 	AllowMethods     []string `yaml:"allow_methods"`
 	AllowHeaders     []string `yaml:"allow_headers"`
 	AllowCredentials bool     `yaml:"allow_credentials"`
+}
+
+type SecurityConfig struct {
+	BCryptCost int          `yaml:"bcrypt_cost"`
+	Users      []UserConfig `yaml:"users"`
+}
+
+type UserConfig struct {
+	Name     string   `yaml:"name"`
+	Password string   `yaml:"password"`
+	Scopes   []string `yaml:"scopes"`
 }
 
 func New() *Config {

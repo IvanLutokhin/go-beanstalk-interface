@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
@@ -12,6 +13,10 @@ import (
 )
 
 func (r *jobResolver) Stats(ctx context.Context, obj *model.Job) (*beanstalk.StatsJob, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs}); err != nil {
+		return nil, err
+	}
+
 	client, release := r.BeanstalkClient()
 
 	defer release()

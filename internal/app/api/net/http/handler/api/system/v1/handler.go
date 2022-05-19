@@ -41,6 +41,9 @@ func GetEmbedFiles(fs http.FileSystem) http.Handler {
 //
 // Responses:
 // 200: ServerStatsSuccessResponse
+//
+// Security:
+// - basicAuth: []
 func GetServerStats() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		stats, err := c.Stats()
@@ -58,6 +61,9 @@ func GetServerStats() beanstalk.Handler {
 //
 // Responses:
 // 200: TubesSuccessResponse
+//
+// Security:
+// - basicAuth: []
 func GetTubes() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		tubes, err := c.ListTubes()
@@ -76,6 +82,9 @@ func GetTubes() beanstalk.Handler {
 // Responses:
 // 200: TubeStatsSuccessResponse
 // 404: NotFoundResponse
+//
+// Security:
+// - basicAuth: []
 func GetTubeStats() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(client beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -102,6 +111,9 @@ func GetTubeStats() beanstalk.Handler {
 // Responses:
 // 200: CreateJobSuccessResponse
 // 400: BadRequestResponse
+//
+// Security:
+// - basicAuth: []
 func CreateJob() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		var request CreateJobRequest
@@ -133,6 +145,9 @@ func CreateJob() beanstalk.Handler {
 // 200: GetJobSuccessResponse
 // 400: BadRequestResponse
 // 404: NotFoundResponse
+//
+// Security:
+// - basicAuth: []
 func GetJob() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -165,6 +180,9 @@ func GetJob() beanstalk.Handler {
 // 200: SuccessResponse
 // 400: BadRequestResponse
 // 404: NotFoundResponse
+//
+// Security:
+// - basicAuth: []
 func BuryJob() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -202,6 +220,9 @@ func BuryJob() beanstalk.Handler {
 // Responses:
 // 200: SuccessResponse
 // 404: NotFoundResponse
+//
+// Security:
+// - basicAuth: []
 func DeleteJob() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -232,6 +253,9 @@ func DeleteJob() beanstalk.Handler {
 // Responses:
 // 200: SuccessResponse
 // 404: NotFoundResponse
+//
+// Security:
+// - basicAuth: []
 func KickJob() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -263,6 +287,9 @@ func KickJob() beanstalk.Handler {
 // 200: SuccessResponse
 // 400: BadRequestResponse
 // 404: NotFoundResponse
+//
+// Security:
+// - basicAuth: []
 func ReleaseJob() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -300,6 +327,9 @@ func ReleaseJob() beanstalk.Handler {
 // Responses:
 // 200: JobStatsSuccessResponse
 // 404: NotFoundResponse
+//
+// Security:
+// - basicAuth: []
 func GetJobStats() beanstalk.Handler {
 	return beanstalk.HandlerFunc(func(c beanstalk.Client, w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
