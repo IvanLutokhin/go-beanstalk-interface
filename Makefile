@@ -12,7 +12,7 @@ help: ## Display this help screen
 
 .PHONY: generate-api-spec
 generate-api-spec: swagger ## Generate API specification
-	@swagger generate spec -o $(GOAPI)/v1/swagger.json --scan-models
+	@swagger generate spec -o $(GOAPI)/system/v1/swagger.json --scan-models
 
 .PHONY: swagger
 swagger:
