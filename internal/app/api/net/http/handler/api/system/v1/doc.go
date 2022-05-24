@@ -3,7 +3,7 @@
 // Documentation of Beanstalk API.
 //
 // Schemes: http, https
-// BasePath: /api/v1
+// BasePath: /api/system/v1
 // Version: 1
 //
 // Consumes:

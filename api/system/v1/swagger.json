@@ -15,7 +15,7 @@
     "title": "Beanstalk API",
     "version": "1"
   },
-  "basePath": "/api/v1",
+  "basePath": "/api/system/v1",
   "paths": {
     "/jobs": {
       "post": {
@@ -308,7 +308,7 @@
           "x-go-name": "Priority"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "CreateJobRequest": {
       "description": "Request types",
@@ -334,7 +334,7 @@
           "x-go-name": "Tube"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "CreateJobResponse": {
       "description": "Response types",
@@ -350,7 +350,7 @@
           "x-go-name": "Tube"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "Duration": {
       "description": "A Duration represents the elapsed time between two instants\nas an int64 nanosecond count. The representation limits the\nlargest representable duration to approximately 290 years.",
@@ -369,7 +369,7 @@
           "x-go-name": "Errors"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "JobResponse": {
       "description": "Response types",
@@ -380,7 +380,7 @@
           "x-go-name": "Data"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "JobStatsResponse": {
       "description": "Response types",
@@ -390,7 +390,7 @@
           "$ref": "#/definitions/StatsJob"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "ReleaseJobRequest": {
       "description": "Request types",
@@ -405,7 +405,7 @@
           "x-go-name": "Priority"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "ServerStatsResponse": {
       "description": "Response types",
@@ -415,182 +415,182 @@
           "$ref": "#/definitions/Stats"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "Stats": {
       "type": "object",
       "properties": {
-        "binlog-current-index": {
+        "binlogCurrentIndex": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogCurrentIndex"
         },
-        "binlog-max-size": {
+        "binlogMaxSize": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogMaxSize"
         },
-        "binlog-oldest-index": {
+        "binlogOldestIndex": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogOldestIndex"
         },
-        "binlog-records-migrated": {
+        "binlogRecordsMigrated": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogRecordsMigrated"
         },
-        "binlog-records-written": {
+        "binlogRecordsWritten": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogRecordsWritten"
         },
-        "cmd-bury": {
+        "cmdBury": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdBury"
         },
-        "cmd-delete": {
+        "cmdDelete": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdDelete"
         },
-        "cmd-ignore": {
+        "cmdIgnore": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdIgnore"
         },
-        "cmd-kick": {
+        "cmdKick": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdKick"
         },
-        "cmd-list-tube-used": {
+        "cmdListTubeUsed": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdListTubeUsed"
         },
-        "cmd-list-tubes": {
+        "cmdListTubes": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdListTubes"
         },
-        "cmd-list-tubes-watched": {
+        "cmdListTubesWatched": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdListTubesWatched"
         },
-        "cmd-pause-tune": {
+        "cmdPauseTube": {
           "type": "integer",
           "format": "int64",
-          "x-go-name": "CmdPauseTune"
+          "x-go-name": "CmdPauseTube"
         },
-        "cmd-peek": {
+        "cmdPeek": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeek"
         },
-        "cmd-peek-buried": {
+        "cmdPeekBuried": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekBuried"
         },
-        "cmd-peek-delayed": {
+        "cmdPeekDelayed": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekDelayed"
         },
-        "cmd-peek-ready": {
+        "cmdPeekReady": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekReady"
         },
-        "cmd-peek-reserve": {
+        "cmdPeekReserve": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekReserve"
         },
-        "cmd-peek-use": {
+        "cmdPeekUse": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekUse"
         },
-        "cmd-put": {
+        "cmdPut": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPut"
         },
-        "cmd-release": {
+        "cmdRelease": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdRelease"
         },
-        "cmd-stats": {
+        "cmdStats": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdStats"
         },
-        "cmd-stats-job": {
+        "cmdStatsJob": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdStatsJob"
         },
-        "cmd-stats-tube": {
+        "cmdStatsTube": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdStatsTube"
         },
-        "cmd-watch": {
+        "cmdWatch": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdWatch"
         },
-        "current-connections": {
+        "currentConnections": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentConnections"
         },
-        "current-jobs-buried": {
+        "currentJobsBuried": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsBuried"
         },
-        "current-jobs-delayed": {
+        "currentJobsDelayed": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsDelayed"
         },
-        "current-jobs-ready": {
+        "currentJobsReady": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReady"
         },
-        "current-jobs-reserved": {
+        "currentJobsReserved": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReserved"
         },
-        "current-jobs-urgent": {
+        "currentJobsUrgent": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsUrgent"
         },
-        "current-producers": {
+        "currentProducers": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentProducers"
         },
-        "current-tubes": {
+        "currentTubes": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentTubes"
         },
-        "current-waiting": {
+        "currentWaiting": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWaiting"
         },
-        "current-workers": {
+        "currentWorkers": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWorkers"
@@ -607,12 +607,12 @@
           "type": "string",
           "x-go-name": "ID"
         },
-        "job-timeouts": {
+        "jobTimeouts": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "JobTimeouts"
         },
-        "max-job-size": {
+        "maxJobSize": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "MaxJobSize"
@@ -630,22 +630,22 @@
           "type": "string",
           "x-go-name": "Platform"
         },
-        "rusage-stime": {
+        "rUsageSTime": {
           "type": "number",
           "format": "double",
           "x-go-name": "RUsageSTime"
         },
-        "rusage-utime": {
+        "rUsageUTime": {
           "type": "number",
           "format": "double",
           "x-go-name": "RUsageUTime"
         },
-        "total-connections": {
+        "totalConnections": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "TotalConnections"
         },
-        "total-jobs": {
+        "totalJobs": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "TotalJobs"
@@ -714,7 +714,7 @@
           "type": "string",
           "x-go-name": "State"
         },
-        "time_left": {
+        "timeLeft": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "TimeLeft"
@@ -739,52 +739,52 @@
     "StatsTube": {
       "type": "object",
       "properties": {
-        "cmd-delete": {
+        "cmdDelete": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdDelete"
         },
-        "cmd-pause-tube": {
+        "cmdPauseTube": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPauseTube"
         },
-        "current-jobs-buried": {
+        "currentJobsBuried": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsBuried"
         },
-        "current-jobs-delayed": {
+        "currentJobsDelayed": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsDelayed"
         },
-        "current-jobs-ready": {
+        "currentJobsReady": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReady"
         },
-        "current-jobs-reserved": {
+        "currentJobsReserved": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReserved"
         },
-        "current-jobs-urgent": {
+        "currentJobsUrgent": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsUrgent"
         },
-        "current-using": {
+        "currentUsing": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentUsing"
         },
-        "current-waiting": {
+        "currentWaiting": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWaiting"
         },
-        "current-watching": {
+        "currentWatching": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWatching"
@@ -798,12 +798,12 @@
           "format": "int64",
           "x-go-name": "Pause"
         },
-        "pause-time-left": {
+        "pauseTimeLeft": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "PauseTimeLeft"
         },
-        "total-jobs": {
+        "totalJobs": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "TotalJobs"
@@ -819,7 +819,7 @@
           "$ref": "#/definitions/StatsTube"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     },
     "TubesResponse": {
       "description": "Response types",
@@ -833,7 +833,7 @@
           "x-go-name": "Tubes"
         }
       },
-      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/v1"
+      "x-go-package": "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
     }
   },
   "responses": {
