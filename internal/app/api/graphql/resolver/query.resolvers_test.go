@@ -9,9 +9,55 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/testutil"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
+	"reflect"
 	"strings"
 	"testing"
 )
+
+func TestQueryResolver_Me(t *testing.T) {
+	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
+
+	c := client.New(h)
+
+	q := `
+query Me() {
+	me {
+		user {
+			name,
+			scopes
+		}
+	}
+}
+`
+
+	var response = struct {
+		Me struct {
+			User struct {
+				Name   string
+				Scopes []model.Scope
+			}
+		}
+	}{}
+
+	c.MustPost(
+		q,
+		&response,
+		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadServer})),
+	)
+
+	if name := response.Me.User.Name; !strings.EqualFold("test", name) {
+		t.Errorf("expected user name 'test', but got '%v'", name)
+	}
+
+	if scopes := response.Me.User.Scopes; !reflect.DeepEqual([]model.Scope{model.ScopeReadServer}, scopes) {
+		t.Errorf("expected user scopes '%v', but got '%v'", []model.Scope{model.ScopeReadServer}, scopes)
+	}
+}
 
 func TestQueryResolver_Server(t *testing.T) {
 	pool, err := beanstalk.NewPool(func() (beanstalk.Client, error) { return &mock.Client{}, nil }, 3, true)

@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -42,6 +43,7 @@ type ResolverRoot interface {
 	Query() QueryResolver
 	Server() ServerResolver
 	Tube() TubeResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -87,6 +89,10 @@ type ComplexityRoot struct {
 		ID func(childComplexity int) int
 	}
 
+	Me struct {
+		User func(childComplexity int) int
+	}
+
 	Mutation struct {
 		BuryJob    func(childComplexity int, input *model.BuryJobInput) int
 		CreateJob  func(childComplexity int, input *model.CreateJobInput) int
@@ -97,6 +103,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Job    func(childComplexity int, id int) int
+		Me     func(childComplexity int) int
 		Server func(childComplexity int) int
 		Tube   func(childComplexity int, name string) int
 		Tubes  func(childComplexity int) int
@@ -193,6 +200,11 @@ type ComplexityRoot struct {
 		PauseTimeLeft       func(childComplexity int) int
 		TotalJobs           func(childComplexity int) int
 	}
+
+	User struct {
+		Name   func(childComplexity int) int
+		Scopes func(childComplexity int) int
+	}
 }
 
 type JobResolver interface {
@@ -206,6 +218,7 @@ type MutationResolver interface {
 	ReleaseJob(ctx context.Context, input *model.ReleaseJobInput) (*model.ReleaseJobPayload, error)
 }
 type QueryResolver interface {
+	Me(ctx context.Context) (*model.Me, error)
 	Server(ctx context.Context) (*model.Server, error)
 	Tubes(ctx context.Context) (*model.TubeConnection, error)
 	Tube(ctx context.Context, name string) (*model.Tube, error)
@@ -219,6 +232,9 @@ type TubeResolver interface {
 	ReadyJob(ctx context.Context, obj *model.Tube) (*model.Job, error)
 	DelayedJob(ctx context.Context, obj *model.Tube) (*model.Job, error)
 	BuriedJob(ctx context.Context, obj *model.Tube) (*model.Job, error)
+}
+type UserResolver interface {
+	Scopes(ctx context.Context, obj *security.User) ([]model.Scope, error)
 }
 
 type executableSchema struct {
@@ -383,6 +399,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KickJobPayload.ID(childComplexity), true
 
+	case "Me.user":
+		if e.complexity.Me.User == nil {
+			break
+		}
+
+		return e.complexity.Me.User(childComplexity), true
+
 	case "Mutation.buryJob":
 		if e.complexity.Mutation.BuryJob == nil {
 			break
@@ -454,6 +477,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Job(childComplexity, args["id"].(int)), true
+
+	case "Query.me":
+		if e.complexity.Query.Me == nil {
+			break
+		}
+
+		return e.complexity.Query.Me(childComplexity), true
 
 	case "Query.server":
 		if e.complexity.Query.Server == nil {
@@ -978,6 +1008,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TubeStats.TotalJobs(childComplexity), true
 
+	case "User.name":
+		if e.complexity.User.Name == nil {
+			break
+		}
+
+		return e.complexity.User.Name(childComplexity), true
+
+	case "User.scopes":
+		if e.complexity.User.Scopes == nil {
+			break
+		}
+
+		return e.complexity.User.Scopes(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -1290,6 +1334,18 @@ type TubeStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.StatsTube"
     pauseTimeLeft: Int!
 }
 `, BuiltIn: false},
+	{Name: "../../../../api/graphql/model/user.graphql", Input: `type User @goModel(model: "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security.User") {
+    name: String!
+    scopes: [Scope!]!
+}
+
+enum Scope {
+    READ_SERVER,
+    READ_TUBES,
+    READ_JOBS,
+    WRITE_JOBS
+}
+`, BuiltIn: false},
 	{Name: "../../../../api/graphql/mutation.graphql", Input: `extend type Mutation {
     createJob(input: CreateJobInput): CreateJobPayload!
     buryJob(input: BuryJobInput): BuryJobPayload!
@@ -1347,10 +1403,15 @@ type ReleaseJobPayload {
 }
 `, BuiltIn: false},
 	{Name: "../../../../api/graphql/query.graphql", Input: `extend type Query {
+    me: Me!
     server: Server!
     tubes: TubeConnection
     tube(name: String!): Tube!
     job(id: Int!): Job!
+}
+
+type Me {
+    user: User!
 }
 
 type TubeConnection {
@@ -2495,6 +2556,56 @@ func (ec *executionContext) fieldContext_KickJobPayload_id(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Me_user(ctx context.Context, field graphql.CollectedField, obj *model.Me) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Me_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*security.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋsecurityᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Me_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Me",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "scopes":
+				return ec.fieldContext_User_scopes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createJob(ctx, field)
 	if err != nil {
@@ -2788,6 +2899,54 @@ func (ec *executionContext) fieldContext_Mutation_releaseJob(ctx context.Context
 	if fc.Args, err = ec.field_Mutation_releaseJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_me(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Me(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Me)
+	fc.Result = res
+	return ec.marshalNMe2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐMe(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "user":
+				return ec.fieldContext_Me_user(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Me", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -6427,6 +6586,94 @@ func (ec *executionContext) fieldContext_TubeStats_pauseTimeLeft(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *security.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name(), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_scopes(ctx context.Context, field graphql.CollectedField, obj *security.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_scopes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().Scopes(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.Scope)
+	fc.Result = res
+	return ec.marshalNScope2ᚕgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScopeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_scopes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Scope does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_name(ctx, field)
 	if err != nil {
@@ -8725,6 +8972,37 @@ func (ec *executionContext) _KickJobPayload(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var meImplementors = []string{"Me"}
+
+func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *model.Me) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, meImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Me")
+		case "user":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Me_user(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -8824,6 +9102,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "me":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_me(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "server":
 			field := field
 
@@ -9836,6 +10137,57 @@ func (ec *executionContext) _TubeStats(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var userImplementors = []string{"User"}
+
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *security.User) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("User")
+		case "name":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._User_name(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "scopes":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_scopes(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
@@ -10388,6 +10740,20 @@ func (ec *executionContext) marshalNKickJobPayload2ᚖgithubᚗcomᚋIvanLutokhi
 	return ec._KickJobPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNMe2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐMe(ctx context.Context, sel ast.SelectionSet, v model.Me) graphql.Marshaler {
+	return ec._Me(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐMe(ctx context.Context, sel ast.SelectionSet, v *model.Me) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Me(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNReleaseJobPayload2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐReleaseJobPayload(ctx context.Context, sel ast.SelectionSet, v model.ReleaseJobPayload) graphql.Marshaler {
 	return ec._ReleaseJobPayload(ctx, sel, &v)
 }
@@ -10400,6 +10766,77 @@ func (ec *executionContext) marshalNReleaseJobPayload2ᚖgithubᚗcomᚋIvanLuto
 		return graphql.Null
 	}
 	return ec._ReleaseJobPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNScope2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScope(ctx context.Context, v interface{}) (model.Scope, error) {
+	var res model.Scope
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNScope2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScope(ctx context.Context, sel ast.SelectionSet, v model.Scope) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNScope2ᚕgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScopeᚄ(ctx context.Context, v interface{}) ([]model.Scope, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.Scope, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNScope2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScope(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNScope2ᚕgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScopeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Scope) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNScope2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScope(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNServer2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐServer(ctx context.Context, sel ast.SelectionSet, v model.Server) graphql.Marshaler {
@@ -10519,6 +10956,16 @@ func (ec *executionContext) marshalNTubeStats2ᚖgithubᚗcomᚋIvanLutokhinᚋg
 		return graphql.Null
 	}
 	return ec._TubeStats(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋsecurityᚐUser(ctx context.Context, sel ast.SelectionSet, v *security.User) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

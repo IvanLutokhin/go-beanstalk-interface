@@ -3,7 +3,12 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/IvanLutokhin/go-beanstalk"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
 
 type BuryJobInput struct {
@@ -50,6 +55,10 @@ type KickJobPayload struct {
 	ID int `json:"id"`
 }
 
+type Me struct {
+	User *security.User `json:"user"`
+}
+
 type ReleaseJobInput struct {
 	ID       int `json:"id"`
 	Priority int `json:"priority"`
@@ -78,4 +87,49 @@ type TubeConnection struct {
 
 type TubeEdge struct {
 	Node *Tube `json:"node"`
+}
+
+type Scope string
+
+const (
+	ScopeReadServer Scope = "READ_SERVER"
+	ScopeReadTubes  Scope = "READ_TUBES"
+	ScopeReadJobs   Scope = "READ_JOBS"
+	ScopeWriteJobs  Scope = "WRITE_JOBS"
+)
+
+var AllScope = []Scope{
+	ScopeReadServer,
+	ScopeReadTubes,
+	ScopeReadJobs,
+	ScopeWriteJobs,
+}
+
+func (e Scope) IsValid() bool {
+	switch e {
+	case ScopeReadServer, ScopeReadTubes, ScopeReadJobs, ScopeWriteJobs:
+		return true
+	}
+	return false
+}
+
+func (e Scope) String() string {
+	return string(e)
+}
+
+func (e *Scope) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Scope(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Scope", str)
+	}
+	return nil
+}
+
+func (e Scope) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

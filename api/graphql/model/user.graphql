@@ -1,0 +1,11 @@
+type User @goModel(model: "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security.User") {
+    name: String!
+    scopes: [Scope!]!
+}
+
+enum Scope {
+    READ_SERVER,
+    READ_TUBES,
+    READ_JOBS,
+    WRITE_JOBS
+}
