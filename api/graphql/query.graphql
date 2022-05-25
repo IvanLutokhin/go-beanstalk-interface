@@ -1,8 +1,13 @@
 extend type Query {
+    me: Me!
     server: Server!
     tubes: TubeConnection
     tube(name: String!): Tube!
     job(id: Int!): Job!
+}
+
+type Me {
+    user: User!
 }
 
 type TubeConnection {

@@ -5,9 +5,20 @@ package resolver
 
 import (
 	"context"
+	"errors"
+
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
+
+func (r *queryResolver) Me(ctx context.Context) (*model.Me, error) {
+	user := security.AuthenticatedUser(ctx)
+	if user == nil {
+		return nil, errors.New("user is not authenticated")
+	}
+
+	return &model.Me{User: user}, nil
+}
 
 func (r *queryResolver) Server(ctx context.Context) (*model.Server, error) {
 	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadServer}); err != nil {
