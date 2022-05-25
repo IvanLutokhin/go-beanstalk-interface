@@ -6,6 +6,7 @@ package resolver
 import (
 	"context"
 	"errors"
+
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"

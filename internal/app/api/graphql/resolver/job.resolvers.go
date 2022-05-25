@@ -5,11 +5,11 @@ package resolver
 
 import (
 	"context"
-	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
 
 func (r *jobResolver) Stats(ctx context.Context, obj *model.Job) (*beanstalk.StatsJob, error) {
