@@ -5,10 +5,10 @@ package resolver
 
 import (
 	"context"
-	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"time"
 
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
 
 func (r *mutationResolver) CreateJob(ctx context.Context, input *model.CreateJobInput) (*model.CreateJobPayload, error) {
