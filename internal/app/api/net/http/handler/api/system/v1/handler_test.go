@@ -9,6 +9,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
 	"github.com/IvanLutokhin/go-beanstalk-interface/pkg/embed"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
@@ -29,9 +30,7 @@ func TestGetEmbedFiles(t *testing.T) {
 		return api.SystemV1EmbedFS.Open(path.Join("system/v1", name))
 	})))).ServeHTTP(recorder, request)
 
-	if code := recorder.Code; http.StatusOK != code {
-		t.Errorf("expected response status code '%v', but got '%v'", http.StatusOK, code)
-	}
+	require.Equal(t, http.StatusOK, recorder.Code)
 }
 
 func TestGetServerStats(t *testing.T) {
@@ -161,15 +160,13 @@ func TestCreateJob(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		tube := body.Data.(map[string]interface{})["tube"]
-		if !strings.EqualFold("default", tube.(string)) {
-			t.Errorf("excpeted tube 'default', but got '%s'", tube)
-		}
+		tube, ok := body.Data.(map[string]interface{})["tube"]
+		require.True(t, ok)
+		require.Equal(t, "default", tube)
 
-		id := body.Data.(map[string]interface{})["id"]
-		if 1 != id.(float64) {
-			t.Errorf("excpeted job id '1', but got '%d'", id)
-		}
+		id, ok := body.Data.(map[string]interface{})["id"]
+		require.True(t, ok)
+		require.Equal(t, float64(1), id)
 	})
 
 	t.Run("create job / bad JSON", func(t *testing.T) {
@@ -214,13 +211,8 @@ func TestGetJob(t *testing.T) {
 		}
 
 		data, ok := body.Data.(map[string]interface{})["data"]
-		if !ok {
-			t.Error("unexpected data in response")
-		}
-
-		if !strings.EqualFold("test", data.(string)) {
-			t.Errorf("excpeted data 'test', but got '%s'", data)
-		}
+		require.True(t, ok)
+		require.Equal(t, "test", data)
 	})
 
 	t.Run("get job / not found", func(t *testing.T) {
@@ -491,28 +483,21 @@ func TestGetJobsStats(t *testing.T) {
 
 // Helpers
 
-func UnmarshalBody(recorder *httptest.ResponseRecorder) (response.Response, error) {
-	var body response.Response
-	if err := json.Unmarshal(recorder.Body.Bytes(), &body); err != nil {
-		return body, err
-	}
+func UnmarshalBody(recorder *httptest.ResponseRecorder) (body response.Response, err error) {
+	err = json.Unmarshal(recorder.Body.Bytes(), &body)
 
-	return body, nil
+	return
 }
 
 func AssertResponse(t *testing.T, recorder *httptest.ResponseRecorder, expectedCode int, expectedStatus string) {
-	if code := recorder.Code; expectedCode != code {
-		t.Errorf("expected response status code '%v', but got '%v'", expectedCode, code)
-	}
+	require.Equal(t, expectedCode, recorder.Code)
 
 	body, err := UnmarshalBody(recorder)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if expectedStatus != body.Status {
-		t.Errorf("expected response status '%s', but got '%s'", expectedStatus, body.Status)
-	}
+	require.Equal(t, expectedStatus, body.Status)
 }
 
 func AssertResponseSuccess(t *testing.T, recorder *httptest.ResponseRecorder, expectedCode int) {

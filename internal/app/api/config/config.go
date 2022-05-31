@@ -150,7 +150,7 @@ func Default() *Config {
 				AllowOrigins:     []string{"*"},
 				AllowMethods:     []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
 				AllowHeaders:     []string{"*"},
-				AllowCredentials: true,
+				AllowCredentials: false,
 			},
 		},
 		Security: SecurityConfig{

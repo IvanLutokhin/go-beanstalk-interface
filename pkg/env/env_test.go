@@ -2,8 +2,8 @@ package env_test
 
 import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/pkg/env"
+	"github.com/stretchr/testify/require"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -15,25 +15,15 @@ func TestGetString(t *testing.T) {
 	t.Run("key exists", func(t *testing.T) {
 		v, err := env.GetString("TEST_KEY")
 
-		if err != nil {
-			t.Errorf("expected nil, but got error '%v'", err)
-		}
-
-		if !strings.EqualFold("test", v) {
-			t.Errorf("expected value 'test', but got '%v'", v)
-		}
+		require.Nil(t, err)
+		require.Equal(t, "test", v)
 	})
 
 	t.Run("key not exists", func(t *testing.T) {
 		v, err := env.GetString("TEST_UNDEFINED_KEY")
 
-		if err == nil {
-			t.Errorf("expected error '%v', but got '%v'", env.ErrVarNotExists, err)
-		}
-
-		if !strings.EqualFold("", v) {
-			t.Errorf("expected empty value, but got '%v'", v)
-		}
+		require.Equal(t, env.ErrVarNotExists, err)
+		require.Empty(t, v)
 	})
 
 	if err := os.Unsetenv("TEST_KEY"); err != nil {
@@ -49,17 +39,13 @@ func TestMustGetString(t *testing.T) {
 	t.Run("key exists", func(t *testing.T) {
 		v := env.MustGetString("TEST_KEY", "default")
 
-		if !strings.EqualFold("test", v) {
-			t.Errorf("expected value 'test', but got '%v'", v)
-		}
+		require.Equal(t, "test", v)
 	})
 
 	t.Run("key not exists", func(t *testing.T) {
 		v := env.MustGetString("TEST_UNDEFINED_KEY", "default")
 
-		if !strings.EqualFold("default", v) {
-			t.Errorf("expected value 'default', but got '%v'", v)
-		}
+		require.Equal(t, "default", v)
 	})
 
 	if err := os.Unsetenv("TEST_KEY"); err != nil {
@@ -75,25 +61,15 @@ func TestGetInt(t *testing.T) {
 	t.Run("key exists", func(t *testing.T) {
 		v, err := env.GetInt("TEST_KEY")
 
-		if err != nil {
-			t.Errorf("expected nil, but got error '%v'", err)
-		}
-
-		if v != 1 {
-			t.Errorf("expected value '1', but got '%v'", v)
-		}
+		require.Nil(t, err)
+		require.Equal(t, 1, v)
 	})
 
 	t.Run("key not exists", func(t *testing.T) {
 		v, err := env.GetInt("TEST_UNDEFINED_KEY")
 
-		if err == nil {
-			t.Errorf("expected error '%v', but got '%v'", env.ErrVarNotExists, err)
-		}
-
-		if v != 0 {
-			t.Errorf("expected value '0', but got '%v'", v)
-		}
+		require.Equal(t, env.ErrVarNotExists, err)
+		require.Equal(t, 0, v)
 	})
 
 	if err := os.Unsetenv("TEST_KEY"); err != nil {
@@ -109,17 +85,13 @@ func TestMustGetInt(t *testing.T) {
 	t.Run("key exists", func(t *testing.T) {
 		v := env.MustGetInt("TEST_KEY", 999)
 
-		if v != 1 {
-			t.Errorf("expected value '1', but got '%v'", v)
-		}
+		require.Equal(t, 1, v)
 	})
 
 	t.Run("key not exists", func(t *testing.T) {
 		v := env.MustGetInt("TEST_UNDEFINED_KEY", 999)
 
-		if v != 999 {
-			t.Errorf("expected value '999', but got '%v'", v)
-		}
+		require.Equal(t, 999, v)
 	})
 
 	if err := os.Unsetenv("TEST_KEY"); err != nil {

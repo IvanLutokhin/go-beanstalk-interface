@@ -3,6 +3,7 @@ package middleware_test
 import (
 	"errors"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +24,5 @@ func TestRecovery_Middleware(t *testing.T) {
 
 	middleware.NewRecovery(zap.NewNop()).Middleware(handler).ServeHTTP(recorder, request)
 
-	if code := recorder.Code; http.StatusInternalServerError != code {
-		t.Errorf("expected response status code '%v', but got '%v'", http.StatusInternalServerError, code)
-	}
+	require.Equal(t, http.StatusInternalServerError, recorder.Code)
 }

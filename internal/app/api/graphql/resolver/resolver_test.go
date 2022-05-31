@@ -6,6 +6,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/resolver"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -18,9 +19,9 @@ func TestResolver_AuthContext(t *testing.T) {
 	r := resolver.NewResolver(pool)
 
 	t.Run("user is not authenticated", func(t *testing.T) {
-		if err = r.AuthContext(context.Background(), []security.Scope{}); err == nil {
-			t.Error("expected error, but got nil")
-		}
+		err := r.AuthContext(context.Background(), []security.Scope{})
+
+		require.NotNil(t, err)
 	})
 
 	t.Run("missing scopes", func(t *testing.T) {
@@ -34,10 +35,8 @@ func TestResolver_AuthContext(t *testing.T) {
 			},
 		)
 
-		ctx := security.WithAuthenticatedUser(context.Background(), user)
+		err := r.AuthContext(security.WithAuthenticatedUser(context.Background(), user), []security.Scope{security.ScopeWriteJobs})
 
-		if err = r.AuthContext(ctx, []security.Scope{security.ScopeWriteJobs}); err == nil {
-			t.Error("expected error, but got nil")
-		}
+		require.NotNil(t, err)
 	})
 }

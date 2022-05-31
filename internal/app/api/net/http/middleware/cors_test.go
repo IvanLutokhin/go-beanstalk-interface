@@ -5,6 +5,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -35,23 +36,9 @@ func TestCors_Middleware(t *testing.T) {
 
 	middleware.NewCors(&c).Middleware(handler).ServeHTTP(recorder, request)
 
-	if code := recorder.Code; http.StatusOK != code {
-		t.Errorf("expected response status code '%v', but got '%v'", http.StatusOK, code)
-	}
-
-	if h := recorder.Header().Get("Access-Control-Allow-Origin"); h != "*" {
-		t.Errorf("expected header 'Access-Control-Allow-Origin' equals '*', but got '%s'", h)
-	}
-
-	if h := recorder.Header().Get("Access-Control-Allow-Methods"); h != "GET,POST" {
-		t.Errorf("expected header 'Access-Control-Allow-Origin' equals 'GET,POST', but got '%s'", h)
-	}
-
-	if h := recorder.Header().Get("Access-Control-Allow-Headers"); h != "*" {
-		t.Errorf("expected header 'Access-Control-Allow-Origin' equals '*', but got '%s'", h)
-	}
-
-	if h := recorder.Header().Get("Access-Control-Allow-Credentials"); h != "false" {
-		t.Errorf("expected header 'Access-Control-Allow-Origin' equals 'false', but got '%s'", h)
-	}
+	require.Equal(t, http.StatusOK, recorder.Code)
+	require.Equal(t, "*", recorder.Header().Get("Access-Control-Allow-Origin"))
+	require.Equal(t, "GET,POST", recorder.Header().Get("Access-Control-Allow-Methods"))
+	require.Equal(t, "*", recorder.Header().Get("Access-Control-Allow-Headers"))
+	require.Equal(t, "false", recorder.Header().Get("Access-Control-Allow-Credentials"))
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/graphql"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,7 +25,5 @@ func TestHandler(t *testing.T) {
 
 	graphql.Handler(pool).ServeHTTP(recorder, request)
 
-	if code := recorder.Code; 200 != code {
-		t.Errorf("expected response status code '200', but got '%v'", code)
-	}
+	require.Equal(t, http.StatusOK, recorder.Code)
 }
