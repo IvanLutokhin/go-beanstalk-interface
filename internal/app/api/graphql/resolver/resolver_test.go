@@ -1,8 +1,9 @@
-package resolver
+package resolver_test
 
 import (
 	"context"
 	"github.com/IvanLutokhin/go-beanstalk"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/resolver"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
 	"testing"
@@ -14,7 +15,7 @@ func TestResolver_AuthContext(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	r := NewResolver(pool)
+	r := resolver.NewResolver(pool)
 
 	t.Run("user is not authenticated", func(t *testing.T) {
 		if err = r.AuthContext(context.Background(), []security.Scope{}); err == nil {

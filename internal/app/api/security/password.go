@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	passwordTypePlain   = "plain"
-	passwordTypeEnv     = "env"
-	passwordTypeEncrypt = "encrypt"
+	PasswordTypePlain   = "plain"
+	PasswordTypeEnv     = "env"
+	PasswordTypeEncrypt = "encrypt"
 )
 
 type HashedPasswordParser interface {
@@ -63,9 +63,17 @@ func (p *encryptParser) Parse(value string, bcryptCost int) ([]byte, error) {
 }
 
 var parsers = map[string]HashedPasswordParser{
-	passwordTypePlain:   &plainParser{},
-	passwordTypeEnv:     &envParser{},
-	passwordTypeEncrypt: &encryptParser{},
+	PasswordTypePlain:   &plainParser{},
+	PasswordTypeEnv:     &envParser{},
+	PasswordTypeEncrypt: &encryptParser{},
+}
+
+func MustGetPasswordParser(key string) HashedPasswordParser {
+	if parser, found := parsers[key]; found {
+		return parser
+	}
+
+	panic("password parser is not provided")
 }
 
 func ParseHashedPassword(value string, bcryptCost int) ([]byte, bool) {

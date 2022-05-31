@@ -1,13 +1,14 @@
-package security
+package security_test
 
 import (
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"reflect"
 	"testing"
 )
 
 func TestIsAvailableScope(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		r := IsAvailableScope("read:server")
+		r := security.IsAvailableScope("read:server")
 
 		if !r {
 			t.Error("unexpected result")
@@ -15,7 +16,7 @@ func TestIsAvailableScope(t *testing.T) {
 	})
 
 	t.Run("failure", func(t *testing.T) {
-		r := IsAvailableScope("test")
+		r := security.IsAvailableScope("test")
 
 		if r {
 			t.Error("unexpected result")
@@ -24,9 +25,9 @@ func TestIsAvailableScope(t *testing.T) {
 }
 
 func TestParseScopes(t *testing.T) {
-	expectedScopes := []Scope{ScopeReadServer, ScopeReadTubes, ScopeReadJobs}
+	expectedScopes := []security.Scope{security.ScopeReadServer, security.ScopeReadTubes, security.ScopeReadJobs}
 
-	scopes := ParseScopes([]string{"read:server", "read:server", "READ:TUBES", "READ:jobs", "test"})
+	scopes := security.ParseScopes([]string{"read:server", "read:server", "READ:TUBES", "READ:jobs", "test"})
 
 	if !reflect.DeepEqual(expectedScopes, scopes) {
 		t.Errorf("expected scopes '%v', but got '%v'", expectedScopes, scopes)
@@ -35,7 +36,7 @@ func TestParseScopes(t *testing.T) {
 
 func TestVerifyScopes(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		scopes := VerifyScopes([]Scope{ScopeReadServer}, []Scope{ScopeReadServer})
+		scopes := security.VerifyScopes([]security.Scope{security.ScopeReadServer}, []security.Scope{security.ScopeReadServer})
 
 		if len(scopes) != 0 {
 			t.Errorf("expected empty scope slice, but got '%v'", scopes)
@@ -43,9 +44,9 @@ func TestVerifyScopes(t *testing.T) {
 	})
 
 	t.Run("failure", func(t *testing.T) {
-		expectedScopes := []Scope{ScopeWriteJobs}
+		expectedScopes := []security.Scope{security.ScopeWriteJobs}
 
-		scopes := VerifyScopes([]Scope{ScopeReadServer, ScopeReadTubes, ScopeReadJobs}, []Scope{ScopeWriteJobs, "test"})
+		scopes := security.VerifyScopes([]security.Scope{security.ScopeReadServer, security.ScopeReadTubes, security.ScopeReadJobs}, []security.Scope{security.ScopeWriteJobs, "test"})
 
 		if !reflect.DeepEqual(expectedScopes, scopes) {
 			t.Errorf("expected scope slice '%v', but got '%v'", expectedScopes, scopes)

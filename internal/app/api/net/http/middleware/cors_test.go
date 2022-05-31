@@ -1,7 +1,8 @@
-package middleware
+package middleware_test
 
 import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/config"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
 	"net/http"
@@ -32,7 +33,7 @@ func TestCors_Middleware(t *testing.T) {
 		},
 	}
 
-	NewCors(&c).Middleware(handler).ServeHTTP(recorder, request)
+	middleware.NewCors(&c).Middleware(handler).ServeHTTP(recorder, request)
 
 	if code := recorder.Code; http.StatusOK != code {
 		t.Errorf("expected response status code '%v', but got '%v'", http.StatusOK, code)

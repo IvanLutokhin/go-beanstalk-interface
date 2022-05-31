@@ -1,9 +1,10 @@
-package v1
+package v1_test
 
 import (
 	"encoding/json"
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/api"
+	v1 "github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
 	"github.com/IvanLutokhin/go-beanstalk-interface/pkg/embed"
@@ -24,7 +25,7 @@ func TestGetEmbedFiles(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	http.StripPrefix("/api/system/v1", GetEmbedFiles(http.FS(embed.FSFunc(func(name string) (fs.File, error) {
+	http.StripPrefix("/api/system/v1", v1.GetEmbedFiles(http.FS(embed.FSFunc(func(name string) (fs.File, error) {
 		return api.SystemV1EmbedFS.Open(path.Join("system/v1", name))
 	})))).ServeHTTP(recorder, request)
 
@@ -46,7 +47,7 @@ func TestGetServerStats(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	beanstalk.NewHTTPHandlerAdapter(pool, GetServerStats()).ServeHTTP(recorder, request)
+	beanstalk.NewHTTPHandlerAdapter(pool, v1.GetServerStats()).ServeHTTP(recorder, request)
 
 	AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -73,7 +74,7 @@ func TestGetTubes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	beanstalk.NewHTTPHandlerAdapter(pool, GetTubes()).ServeHTTP(recorder, request)
+	beanstalk.NewHTTPHandlerAdapter(pool, v1.GetTubes()).ServeHTTP(recorder, request)
 
 	AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -105,7 +106,7 @@ func TestGetTubeStats(t *testing.T) {
 			"name": "default",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, GetTubeStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.GetTubeStats()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -131,7 +132,7 @@ func TestGetTubeStats(t *testing.T) {
 			"name": "not_found",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, GetTubeStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.GetTubeStats()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
@@ -151,7 +152,7 @@ func TestCreateJob(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		beanstalk.NewHTTPHandlerAdapter(pool, CreateJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.CreateJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusCreated)
 
@@ -179,7 +180,7 @@ func TestCreateJob(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		beanstalk.NewHTTPHandlerAdapter(pool, CreateJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.CreateJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
@@ -203,7 +204,7 @@ func TestGetJob(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, GetJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.GetJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -234,7 +235,7 @@ func TestGetJob(t *testing.T) {
 			"id": "999",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, GetJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.GetJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
@@ -258,7 +259,7 @@ func TestBuryJob(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, BuryJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.BuryJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -275,7 +276,7 @@ func TestBuryJob(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, BuryJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.BuryJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
@@ -292,7 +293,7 @@ func TestBuryJob(t *testing.T) {
 			"id": "999",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, BuryJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.BuryJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
@@ -316,7 +317,7 @@ func TestDeleteJob(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, DeleteJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.DeleteJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -333,7 +334,7 @@ func TestDeleteJob(t *testing.T) {
 			"id": "999",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, DeleteJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.DeleteJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
@@ -357,7 +358,7 @@ func TestKickJob(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, KickJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.KickJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -374,7 +375,7 @@ func TestKickJob(t *testing.T) {
 			"id": "999",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, KickJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.KickJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
@@ -398,7 +399,7 @@ func TestReleaseJob(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, ReleaseJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.ReleaseJob()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 	})
@@ -415,7 +416,7 @@ func TestReleaseJob(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, ReleaseJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.ReleaseJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusBadRequest)
 	})
@@ -432,7 +433,7 @@ func TestReleaseJob(t *testing.T) {
 			"id": "999",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, ReleaseJob()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.ReleaseJob()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})
@@ -456,7 +457,7 @@ func TestGetJobsStats(t *testing.T) {
 			"id": "1",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, GetJobStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.GetJobStats()).ServeHTTP(recorder, request)
 
 		AssertResponseSuccess(t, recorder, http.StatusOK)
 
@@ -482,7 +483,7 @@ func TestGetJobsStats(t *testing.T) {
 			"id": "999",
 		})
 
-		beanstalk.NewHTTPHandlerAdapter(pool, GetJobStats()).ServeHTTP(recorder, request)
+		beanstalk.NewHTTPHandlerAdapter(pool, v1.GetJobStats()).ServeHTTP(recorder, request)
 
 		AssertResponseFailure(t, recorder, http.StatusNotFound)
 	})

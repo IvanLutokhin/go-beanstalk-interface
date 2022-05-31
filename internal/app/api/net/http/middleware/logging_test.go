@@ -1,6 +1,7 @@
-package middleware
+package middleware_test
 
 import (
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
 	"go.uber.org/zap"
@@ -21,7 +22,7 @@ func TestLogging_Middleware(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	NewLogging(zap.NewNop()).Middleware(handler).ServeHTTP(recorder, request)
+	middleware.NewLogging(zap.NewNop()).Middleware(handler).ServeHTTP(recorder, request)
 
 	if code := recorder.Code; http.StatusAccepted != code {
 		t.Errorf("expected response status code '%v', but got '%v'", http.StatusAccepted, code)
