@@ -1,17 +1,14 @@
 package config
 
 import (
+	"errors"
+	"github.com/IvanLutokhin/go-beanstalk-interface/pkg/env"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v2"
 	"io"
 	"os"
 	"time"
-)
-
-const (
-	EnvVariableKey = "BEANSTALK_INTERFACE_CONFIG"
-	DefaultFile    = "configs/api.config.yaml"
 )
 
 type Config struct {
@@ -80,18 +77,14 @@ type UserConfig struct {
 	Scopes   []string `yaml:"scopes"`
 }
 
-func New() *Config {
-	file, ok := os.LookupEnv(EnvVariableKey)
-	if !ok {
-		file = DefaultFile
+func LoadOrDefault(name string) (*Config, error) {
+	if c, err := Load(name); err == nil {
+		return c, nil
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	} else {
+		return Default(), nil
 	}
-
-	c, err := Load(file)
-	if err != nil {
-		panic(err)
-	}
-
-	return c
 }
 
 func Load(name string) (*Config, error) {
@@ -117,4 +110,63 @@ func Unmarshal(reader io.Reader) (*Config, error) {
 	}
 
 	return &c, nil
+}
+
+func Default() *Config {
+	return &Config{
+		Logger: LoggerConfig{
+			Level:    zap.NewAtomicLevelAt(zapcore.DebugLevel),
+			Encoding: "console",
+			Encoder: EncoderConfig{
+				MessageKey:       "message",
+				LevelKey:         "level",
+				TimeKey:          "timestamp",
+				NameKey:          "logger",
+				CallerKey:        "caller",
+				FunctionKey:      "",
+				StacktraceKey:    "stacktrace",
+				LineEnding:       "\n",
+				LevelEncoder:     zapcore.CapitalLevelEncoder,
+				TimerEncoder:     zapcore.RFC3339TimeEncoder,
+				DurationEncoder:  zapcore.StringDurationEncoder,
+				CallerEncoder:    zapcore.ShortCallerEncoder,
+				NameEncoder:      zapcore.FullNameEncoder,
+				ConsoleSeparator: "\t",
+			},
+			InitialFields: make(map[string]interface{}),
+		},
+		Beanstalk: BeanstalkConfig{
+			Address: env.MustGetString("BI_SERVER_ADDRESS", "127.0.0.1:11300"),
+			Pool: PoolConfig{
+				Capacity: env.MustGetInt("BI_POOL_CAPACITY", 3),
+			},
+		},
+		Http: HttpConfig{
+			ListenAddresses: env.MustGetString("BI_LISTEN_ADDRESSES", ":9999"),
+			ReadTimeout:     30 * time.Second,
+			WriteTimeout:    30 * time.Second,
+			IdleTimeout:     60 * time.Second,
+			Cors: CorsConfig{
+				AllowOrigins:     []string{"*"},
+				AllowMethods:     []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
+				AllowHeaders:     []string{"*"},
+				AllowCredentials: true,
+			},
+		},
+		Security: SecurityConfig{
+			BCryptCost: env.MustGetInt("BI_SECURITY_BCRYPT_COST", 10),
+			Users: []UserConfig{
+				{
+					Name:     env.MustGetString("BI_ROOT_USER", "admin"),
+					Password: env.MustGetString("BI_ROOT_PASSWORD", "!plain:admin"),
+					Scopes: []string{
+						"read:server",
+						"read:tubes",
+						"read:jobs",
+						"write:jobs",
+					},
+				},
+			},
+		},
+	}
 }
