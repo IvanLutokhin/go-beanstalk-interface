@@ -1,6 +1,7 @@
-package config
+package config_test
 
 import (
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/config"
 	"reflect"
 	"strings"
 	"testing"
@@ -8,7 +9,7 @@ import (
 
 func TestLoadOrDefault(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
-		c, err := LoadOrDefault("")
+		c, err := config.LoadOrDefault("")
 
 		if err != nil {
 			t.Errorf("expected nil error, but got '%v'", err)
@@ -67,7 +68,7 @@ func TestUnmarshal(t *testing.T) {
 		"        - write:jobs\n" +
 		"\n"
 
-	c, err := Unmarshal(strings.NewReader(s))
+	c, err := config.Unmarshal(strings.NewReader(s))
 	if err != nil {
 		t.Fatal(err)
 	}

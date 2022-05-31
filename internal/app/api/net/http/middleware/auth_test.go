@@ -1,6 +1,7 @@
-package middleware
+package middleware_test
 
 import (
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
@@ -36,7 +37,7 @@ func TestAuth(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
+		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
 		if code := recorder.Code; http.StatusUnauthorized != code {
 			t.Errorf("expected response status code '%v', but got '%v'", http.StatusUnauthorized, code)
@@ -53,7 +54,7 @@ func TestAuth(t *testing.T) {
 
 		request.Header.Set("Authorization", "test")
 
-		Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
+		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
 		if code := recorder.Code; http.StatusUnauthorized != code {
 			t.Errorf("expected response status code '%v', but got '%v'", http.StatusUnauthorized, code)
@@ -70,7 +71,7 @@ func TestAuth(t *testing.T) {
 
 		request.SetBasicAuth("test", "test")
 
-		Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
+		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
 		if code := recorder.Code; http.StatusUnauthorized != code {
 			t.Errorf("expected response status code '%v', but got '%v'", http.StatusUnauthorized, code)
@@ -87,7 +88,7 @@ func TestAuth(t *testing.T) {
 
 		request.SetBasicAuth("test", "password")
 
-		Auth(provider, []security.Scope{security.ScopeWriteJobs}).Middleware(handler).ServeHTTP(recorder, request)
+		middleware.Auth(provider, []security.Scope{security.ScopeWriteJobs}).Middleware(handler).ServeHTTP(recorder, request)
 
 		if code := recorder.Code; http.StatusForbidden != code {
 			t.Errorf("expected response status code '%v', but got '%v'", http.StatusForbidden, code)
@@ -108,7 +109,7 @@ func TestAuth(t *testing.T) {
 
 		request.SetBasicAuth("test", "password")
 
-		Auth(provider, []security.Scope{security.ScopeReadServer}).Middleware(handler).ServeHTTP(recorder, request)
+		middleware.Auth(provider, []security.Scope{security.ScopeReadServer}).Middleware(handler).ServeHTTP(recorder, request)
 
 		if code := recorder.Code; http.StatusOK != code {
 			t.Errorf("expected response status code '%v', but got '%v'", http.StatusOK, code)

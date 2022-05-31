@@ -1,7 +1,8 @@
-package graphql
+package graphql_test
 
 import (
 	"github.com/IvanLutokhin/go-beanstalk"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/graphql"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
 	"net/http"
 	"net/http/httptest"
@@ -21,7 +22,7 @@ func TestHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	Handler(pool).ServeHTTP(recorder, request)
+	graphql.Handler(pool).ServeHTTP(recorder, request)
 
 	if code := recorder.Code; 200 != code {
 		t.Errorf("expected response status code '200', but got '%v'", code)

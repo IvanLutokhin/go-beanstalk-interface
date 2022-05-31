@@ -1,4 +1,4 @@
-package resolver
+package resolver_test
 
 import (
 	"github.com/99designs/gqlgen/client"
@@ -6,6 +6,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/executor"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/resolver"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/testutil"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
@@ -20,7 +21,7 @@ func TestQueryResolver_Me(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -65,7 +66,7 @@ func TestQueryResolver_Server(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -144,7 +145,7 @@ func TestQueryResolver_Tubes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -227,7 +228,7 @@ func TestQueryResolver_Tube(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(pool)}))
 
 	c := client.New(h)
 
@@ -305,7 +306,7 @@ func TestQueryResolver_Job(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: NewResolver(pool)}))
+	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(pool)}))
 
 	c := client.New(h)
 

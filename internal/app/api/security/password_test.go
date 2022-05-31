@@ -1,17 +1,14 @@
-package security
+package security_test
 
 import (
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"golang.org/x/crypto/bcrypt"
 	"os"
 	"testing"
 )
 
 func TestPlainParser_Parse(t *testing.T) {
-	parser, found := parsers[passwordTypePlain]
-
-	if !found {
-		t.Error("parser not initialized")
-	}
+	parser := security.MustGetPasswordParser(security.PasswordTypePlain)
 
 	t.Run("success", func(t *testing.T) {
 		h, err := parser.Parse("password", 10)
@@ -39,11 +36,7 @@ func TestPlainParser_Parse(t *testing.T) {
 }
 
 func TestEnvParser_Parse(t *testing.T) {
-	parser, found := parsers[passwordTypeEnv]
-
-	if !found {
-		t.Error("parser not initialized")
-	}
+	parser := security.MustGetPasswordParser(security.PasswordTypeEnv)
 
 	if err := os.Setenv("TEST_PASSWORD", "password"); err != nil {
 		t.Error(err)
@@ -79,11 +72,7 @@ func TestEnvParser_Parse(t *testing.T) {
 }
 
 func TestEncryptParser_Parse(t *testing.T) {
-	parser, found := parsers[passwordTypeEncrypt]
-
-	if !found {
-		t.Error("parser not initialized")
-	}
+	parser := security.MustGetPasswordParser(security.PasswordTypeEncrypt)
 
 	t.Run("success", func(t *testing.T) {
 		h, err := parser.Parse("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC", 10)
@@ -112,7 +101,7 @@ func TestEncryptParser_Parse(t *testing.T) {
 
 func TestParseHashedPassword(t *testing.T) {
 	t.Run("empty value", func(t *testing.T) {
-		h, ok := ParseHashedPassword("", 10)
+		h, ok := security.ParseHashedPassword("", 10)
 
 		if ok {
 			t.Error("unexpected result")
@@ -124,7 +113,7 @@ func TestParseHashedPassword(t *testing.T) {
 	})
 
 	t.Run("illegal value", func(t *testing.T) {
-		h, ok := ParseHashedPassword("test", 10)
+		h, ok := security.ParseHashedPassword("test", 10)
 
 		if ok {
 			t.Error("unexpected result")
@@ -136,7 +125,7 @@ func TestParseHashedPassword(t *testing.T) {
 	})
 
 	t.Run("empty password hash", func(t *testing.T) {
-		h, ok := ParseHashedPassword("!test:", 10)
+		h, ok := security.ParseHashedPassword("!test:", 10)
 
 		if ok {
 			t.Error("unexpected result")
@@ -148,7 +137,7 @@ func TestParseHashedPassword(t *testing.T) {
 	})
 
 	t.Run("empty type", func(t *testing.T) {
-		h, ok := ParseHashedPassword("!:test", 10)
+		h, ok := security.ParseHashedPassword("!:test", 10)
 
 		if ok {
 			t.Error("unexpected result")
@@ -160,7 +149,7 @@ func TestParseHashedPassword(t *testing.T) {
 	})
 
 	t.Run("illegal type", func(t *testing.T) {
-		h, ok := ParseHashedPassword("test:test", 10)
+		h, ok := security.ParseHashedPassword("test:test", 10)
 
 		if ok {
 			t.Error("unexpected result")
@@ -172,7 +161,7 @@ func TestParseHashedPassword(t *testing.T) {
 	})
 
 	t.Run("password type / plain", func(t *testing.T) {
-		h, ok := ParseHashedPassword("!plain:password", 10)
+		h, ok := security.ParseHashedPassword("!plain:password", 10)
 
 		if !ok {
 			t.Error("unexpected result")
@@ -188,7 +177,7 @@ func TestParseHashedPassword(t *testing.T) {
 			t.Error(err)
 		}
 
-		h, ok := ParseHashedPassword("!env:TEST_PASSWORD", 10)
+		h, ok := security.ParseHashedPassword("!env:TEST_PASSWORD", 10)
 
 		if !ok {
 			t.Error("unexpected result")
@@ -204,7 +193,7 @@ func TestParseHashedPassword(t *testing.T) {
 	})
 
 	t.Run("password type / encrypt", func(t *testing.T) {
-		h, ok := ParseHashedPassword("!encrypt:$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC", 10)
+		h, ok := security.ParseHashedPassword("!encrypt:$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC", 10)
 
 		if !ok {
 			t.Error("unexpected result")
@@ -216,7 +205,7 @@ func TestParseHashedPassword(t *testing.T) {
 	})
 
 	t.Run("password type / not supported", func(t *testing.T) {
-		h, ok := ParseHashedPassword("!test:test", 10)
+		h, ok := security.ParseHashedPassword("!test:test", 10)
 
 		if ok {
 			t.Error("unexpected result")
@@ -230,7 +219,7 @@ func TestParseHashedPassword(t *testing.T) {
 
 func TestVerifyPassword(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		ok := VerifyPassword([]byte("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC"), []byte("password"))
+		ok := security.VerifyPassword([]byte("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC"), []byte("password"))
 
 		if !ok {
 			t.Error("unexpected result")
@@ -238,7 +227,7 @@ func TestVerifyPassword(t *testing.T) {
 	})
 
 	t.Run("failure", func(t *testing.T) {
-		ok := VerifyPassword([]byte("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC"), []byte("test"))
+		ok := security.VerifyPassword([]byte("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC"), []byte("test"))
 
 		if ok {
 			t.Error("unexpected result")

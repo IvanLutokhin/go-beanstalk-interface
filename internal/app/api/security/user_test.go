@@ -1,7 +1,8 @@
-package security
+package security_test
 
 import (
 	"bytes"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"reflect"
 	"strings"
 	"testing"
@@ -11,10 +12,10 @@ func TestNewUser(t *testing.T) {
 	var (
 		expectedName           = "test"
 		expectedHashedPassword = []byte("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC")
-		expectedScopes         = []Scope{ScopeReadServer}
+		expectedScopes         = []security.Scope{security.ScopeReadServer}
 	)
 
-	user := NewUser(expectedName, expectedHashedPassword, expectedScopes)
+	user := security.NewUser(expectedName, expectedHashedPassword, expectedScopes)
 
 	if user == nil {
 		t.Error("expected user, but got nil")
@@ -34,9 +35,9 @@ func TestNewUser(t *testing.T) {
 }
 
 func TestNewUserProvider(t *testing.T) {
-	provider := NewUserProvider()
+	provider := security.NewUserProvider()
 
-	provider.Set("test", NewUser("test", []byte{}, []Scope{}))
+	provider.Set("test", security.NewUser("test", []byte{}, []security.Scope{}))
 
 	t.Run("user / exists", func(t *testing.T) {
 		user := provider.Get("test")
