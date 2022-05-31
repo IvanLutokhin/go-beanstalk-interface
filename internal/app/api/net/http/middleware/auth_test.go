@@ -5,9 +5,9 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -39,9 +39,7 @@ func TestAuth(t *testing.T) {
 
 		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
-		if code := recorder.Code; http.StatusUnauthorized != code {
-			t.Errorf("expected response status code '%v', but got '%v'", http.StatusUnauthorized, code)
-		}
+		require.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 
 	t.Run("illegal", func(t *testing.T) {
@@ -56,9 +54,7 @@ func TestAuth(t *testing.T) {
 
 		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
-		if code := recorder.Code; http.StatusUnauthorized != code {
-			t.Errorf("expected response status code '%v', but got '%v'", http.StatusUnauthorized, code)
-		}
+		require.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 
 	t.Run("unknown user", func(t *testing.T) {
@@ -73,9 +69,7 @@ func TestAuth(t *testing.T) {
 
 		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
-		if code := recorder.Code; http.StatusUnauthorized != code {
-			t.Errorf("expected response status code '%v', but got '%v'", http.StatusUnauthorized, code)
-		}
+		require.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 
 	t.Run("forbidden", func(t *testing.T) {
@@ -90,13 +84,8 @@ func TestAuth(t *testing.T) {
 
 		middleware.Auth(provider, []security.Scope{security.ScopeWriteJobs}).Middleware(handler).ServeHTTP(recorder, request)
 
-		if code := recorder.Code; http.StatusForbidden != code {
-			t.Errorf("expected response status code '%v', but got '%v'", http.StatusForbidden, code)
-		}
-
-		if body := recorder.Body.String(); !strings.EqualFold(`{"status":"failure","message":"Forbidden","data":{"errors":["required scopes [write:jobs]"]}}`, body) {
-			t.Errorf("expected error, but got '%v'", body)
-		}
+		require.Equal(t, http.StatusForbidden, recorder.Code)
+		require.Equal(t, `{"status":"failure","message":"Forbidden","data":{"errors":["required scopes [write:jobs]"]}}`, recorder.Body.String())
 	})
 
 	t.Run("authenticated", func(t *testing.T) {
@@ -111,8 +100,6 @@ func TestAuth(t *testing.T) {
 
 		middleware.Auth(provider, []security.Scope{security.ScopeReadServer}).Middleware(handler).ServeHTTP(recorder, request)
 
-		if code := recorder.Code; http.StatusOK != code {
-			t.Errorf("expected response status code '%v', but got '%v'", http.StatusOK, code)
-		}
+		require.Equal(t, http.StatusOK, recorder.Code)
 	})
 }

@@ -10,8 +10,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/testutil"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
-	"reflect"
-	"strings"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -51,13 +50,8 @@ query Me() {
 		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadServer})),
 	)
 
-	if name := response.Me.User.Name; !strings.EqualFold("test", name) {
-		t.Errorf("expected user name 'test', but got '%v'", name)
-	}
-
-	if scopes := response.Me.User.Scopes; !reflect.DeepEqual([]model.Scope{model.ScopeReadServer}, scopes) {
-		t.Errorf("expected user scopes '%v', but got '%v'", []model.Scope{model.ScopeReadServer}, scopes)
-	}
+	require.Equal(t, "test", response.Me.User.Name)
+	require.ElementsMatch(t, []model.Scope{model.ScopeReadServer}, response.Me.User.Scopes)
 }
 
 func TestQueryResolver_Server(t *testing.T) {
@@ -217,9 +211,7 @@ fragment job on Job {
 		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadTubes, security.ScopeReadJobs})),
 	)
 
-	if count := len(response.Tubes.Edges); count != 1 {
-		t.Errorf("expected tubes '1', but got '%v'", count)
-	}
+	require.Len(t, response.Tubes.Edges, 1)
 }
 
 func TestQueryResolver_Tube(t *testing.T) {
@@ -295,9 +287,7 @@ fragment job on Job {
 		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadTubes, security.ScopeReadJobs})),
 	)
 
-	if name := response.Tube.Name; !strings.EqualFold("default", name) {
-		t.Errorf("expected tube name 'default', but got '%v'", name)
-	}
+	require.Equal(t, "default", response.Tube.Name)
 }
 
 func TestQueryResolver_Job(t *testing.T) {
@@ -345,7 +335,5 @@ query Job ($id: Int!) {
 		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs})),
 	)
 
-	if id := response.Job.ID; id != 1 {
-		t.Errorf("expected job id '1', but got '%v'", id)
-	}
+	require.Equal(t, 1, response.Job.ID)
 }

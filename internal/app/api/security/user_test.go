@@ -1,10 +1,8 @@
 package security_test
 
 import (
-	"bytes"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
-	"reflect"
-	"strings"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -17,21 +15,10 @@ func TestNewUser(t *testing.T) {
 
 	user := security.NewUser(expectedName, expectedHashedPassword, expectedScopes)
 
-	if user == nil {
-		t.Error("expected user, but got nil")
-	}
-
-	if name := user.Name(); !strings.EqualFold(expectedName, name) {
-		t.Errorf("expected user name '%v', but got '%v'", expectedName, name)
-	}
-
-	if hashedPassword := user.HashedPassword(); !bytes.Equal(expectedHashedPassword, hashedPassword) {
-		t.Errorf("expected user hashed password '%v', but got '%v'", expectedHashedPassword, hashedPassword)
-	}
-
-	if scopes := user.Scopes(); !reflect.DeepEqual(expectedScopes, scopes) {
-		t.Errorf("expected user scopes '%v', but got '%v'", expectedScopes, scopes)
-	}
+	require.NotNil(t, user)
+	require.Equal(t, expectedName, user.Name())
+	require.Equal(t, expectedHashedPassword, user.HashedPassword())
+	require.ElementsMatch(t, expectedScopes, user.Scopes())
 }
 
 func TestNewUserProvider(t *testing.T) {
@@ -42,16 +29,15 @@ func TestNewUserProvider(t *testing.T) {
 	t.Run("user / exists", func(t *testing.T) {
 		user := provider.Get("test")
 
-		if user == nil {
-			t.Error("expected user, but got nil")
-		}
+		require.NotNil(t, user)
+		require.Equal(t, "test", user.Name())
+		require.Empty(t, user.HashedPassword())
+		require.ElementsMatch(t, []security.Scope{}, user.Scopes())
 	})
 
 	t.Run("user / unknown", func(t *testing.T) {
 		user := provider.Get("unknown")
 
-		if user != nil {
-			t.Errorf("expected nil, but got user '%v'", user)
-		}
+		require.Nil(t, user)
 	})
 }

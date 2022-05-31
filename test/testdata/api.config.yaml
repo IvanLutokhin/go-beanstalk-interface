@@ -16,7 +16,8 @@ logger:
     caller_encoder: "short"
     name_encoder: "full"
     console_separator: "\t"
-  initial_fields: ~
+  initial_fields:
+    key: value
 
 beanstalk:
   address: "127.0.0.1:11300"

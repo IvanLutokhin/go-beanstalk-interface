@@ -10,7 +10,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/testutil"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/pkg/beanstalk/mock"
-	"strings"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -47,13 +47,8 @@ mutation CreateJob($tube: String!, $priority: Int!, $delay: Int!, $ttr: Int!, $d
 		testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 	)
 
-	if tube := response.CreateJob.Tube; !strings.EqualFold("default", tube) {
-		t.Errorf("expected tube name 'default', but got '%v'", tube)
-	}
-
-	if id := response.CreateJob.ID; id != 1 {
-		t.Errorf("expected job id '1', but got '%v'", id)
-	}
+	require.Equal(t, "default", response.CreateJob.Tube)
+	require.Equal(t, 1, response.CreateJob.ID)
 }
 
 func TestMutationResolver_BuryJob(t *testing.T) {
@@ -87,9 +82,7 @@ mutation BuryJob($id: Int!, $priority: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if id := response.BuryJob.ID; id != 1 {
-			t.Errorf("expected job id '1', but got '%v'", id)
-		}
+		require.Equal(t, 1, response.BuryJob.ID)
 	})
 
 	t.Run("bury job / not found", func(t *testing.T) {
@@ -101,9 +94,8 @@ mutation BuryJob($id: Int!, $priority: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if !strings.EqualFold(`[{"message":"beanstalk: not found","path":["buryJob"]}]`, err.Error()) {
-			t.Errorf("expected not found error, but got '%v'", err)
-		}
+		require.NotNil(t, err)
+		require.Equal(t, `[{"message":"beanstalk: not found","path":["buryJob"]}]`, err.Error())
 	})
 }
 
@@ -136,9 +128,7 @@ mutation DeleteJob($id: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if id := response.DeleteJob.ID; id != 1 {
-			t.Errorf("expected job id '1', but got '%v'", id)
-		}
+		require.Equal(t, 1, response.DeleteJob.ID)
 	})
 
 	t.Run("delete job / not found", func(t *testing.T) {
@@ -149,9 +139,8 @@ mutation DeleteJob($id: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if !strings.EqualFold(`[{"message":"beanstalk: not found","path":["deleteJob"]}]`, err.Error()) {
-			t.Errorf("expected not found error, but got '%v'", err)
-		}
+		require.NotNil(t, err)
+		require.Equal(t, `[{"message":"beanstalk: not found","path":["deleteJob"]}]`, err.Error())
 	})
 }
 
@@ -184,9 +173,7 @@ mutation KickJob($id: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if id := response.KickJob.ID; id != 1 {
-			t.Errorf("expected job id '1', but got '%v'", id)
-		}
+		require.Equal(t, 1, response.KickJob.ID)
 	})
 
 	t.Run("kick job / not found", func(t *testing.T) {
@@ -197,9 +184,8 @@ mutation KickJob($id: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if !strings.EqualFold(`[{"message":"beanstalk: not found","path":["kickJob"]}]`, err.Error()) {
-			t.Errorf("expected not found error, but got '%v'", err)
-		}
+		require.NotNil(t, err)
+		require.Equal(t, `[{"message":"beanstalk: not found","path":["kickJob"]}]`, err.Error())
 	})
 }
 
@@ -234,9 +220,7 @@ mutation ReleaseJob($id: Int!, $priority: Int!, $delay: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if id := response.ReleaseJob.ID; id != 1 {
-			t.Errorf("expected job id '1', but got '%v'", id)
-		}
+		require.Equal(t, 1, response.ReleaseJob.ID)
 	})
 
 	t.Run("release job / not found", func(t *testing.T) {
@@ -249,8 +233,7 @@ mutation ReleaseJob($id: Int!, $priority: Int!, $delay: Int!) {
 			testutil.AuthenticatedUser(security.NewUser("test", []byte{}, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs})),
 		)
 
-		if !strings.EqualFold(`[{"message":"beanstalk: not found","path":["releaseJob"]}]`, err.Error()) {
-			t.Errorf("expected not found error, but got '%v'", err)
-		}
+		require.NotNil(t, err)
+		require.Equal(t, `[{"message":"beanstalk: not found","path":["releaseJob"]}]`, err.Error())
 	})
 }

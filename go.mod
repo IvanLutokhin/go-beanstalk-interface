@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.3
 	github.com/IvanLutokhin/go-beanstalk v0.6.1
 	github.com/gorilla/mux v1.8.0
+	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.2
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/fx v1.15.0
