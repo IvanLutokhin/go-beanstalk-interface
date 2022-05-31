@@ -6,6 +6,20 @@ import (
 	"testing"
 )
 
+func TestLoadOrDefault(t *testing.T) {
+	t.Run("default", func(t *testing.T) {
+		c, err := LoadOrDefault("")
+
+		if err != nil {
+			t.Errorf("expected nil error, but got '%v'", err)
+		}
+
+		if c == nil {
+			t.Error("expected default config, but got nil")
+		}
+	})
+}
+
 func TestUnmarshal(t *testing.T) {
 	s := "logger:\n" +
 		"  level: 'debug'\n" +
