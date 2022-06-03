@@ -60,9 +60,9 @@ type HttpConfig struct {
 }
 
 type CorsConfig struct {
-	AllowOrigins     []string `yaml:"allow_origins"`
-	AllowMethods     []string `yaml:"allow_methods"`
-	AllowHeaders     []string `yaml:"allow_headers"`
+	AllowedOrigins   []string `yaml:"allowed_origins"`
+	AllowedMethods   []string `yaml:"allowed_methods"`
+	AllowedHeaders   []string `yaml:"allowed_headers"`
 	AllowCredentials bool     `yaml:"allow_credentials"`
 }
 
@@ -147,10 +147,10 @@ func Default() *Config {
 			WriteTimeout:    30 * time.Second,
 			IdleTimeout:     60 * time.Second,
 			Cors: CorsConfig{
-				AllowOrigins:     []string{"*"},
-				AllowMethods:     []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
-				AllowHeaders:     []string{"*"},
-				AllowCredentials: false,
+				AllowedOrigins:   []string{"*"},
+				AllowedMethods:   []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
+				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"},
+				AllowCredentials: true,
 			},
 		},
 		Security: SecurityConfig{
