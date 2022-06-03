@@ -45,10 +45,10 @@ func TestLoadOrDefault(t *testing.T) {
 		require.Equal(t, 30*time.Second, c.Http.ReadTimeout, "http.read_timeout")
 		require.Equal(t, 30*time.Second, c.Http.WriteTimeout, "http.write_timeout")
 		require.Equal(t, 60*time.Second, c.Http.IdleTimeout, "http.idle_timeout")
-		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowOrigins, "http.cors.allow_origins")
-		require.ElementsMatch(t, []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}, c.Http.Cors.AllowMethods, "http.cors.allow_methods")
-		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowHeaders, "http.cors.allow_headers")
-		require.False(t, c.Http.Cors.AllowCredentials, "http.cors.allow_credentials")
+		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowedOrigins, "http.cors.allow_origins")
+		require.ElementsMatch(t, []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}, c.Http.Cors.AllowedMethods, "http.cors.allow_methods")
+		require.ElementsMatch(t, []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"}, c.Http.Cors.AllowedHeaders, "http.cors.allow_headers")
+		require.True(t, c.Http.Cors.AllowCredentials, "http.cors.allow_credentials")
 
 		// Security
 		require.Equal(t, 10, c.Security.BCryptCost, "security.bcrypt_cost")
@@ -87,10 +87,10 @@ func TestLoadOrDefault(t *testing.T) {
 		require.Equal(t, 30*time.Second, c.Http.ReadTimeout, "http.read_timeout")
 		require.Equal(t, 30*time.Second, c.Http.WriteTimeout, "http.write_timeout")
 		require.Equal(t, 60*time.Second, c.Http.IdleTimeout, "http.idle_timeout")
-		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowOrigins, "http.cors.allow_origins")
-		require.ElementsMatch(t, []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}, c.Http.Cors.AllowMethods, "http.cors.allow_methods")
-		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowHeaders, "http.cors.allow_headers")
-		require.False(t, c.Http.Cors.AllowCredentials, "http.cors.allow_credentials")
+		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowedOrigins, "http.cors.allow_origins")
+		require.ElementsMatch(t, []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}, c.Http.Cors.AllowedMethods, "http.cors.allow_methods")
+		require.ElementsMatch(t, []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"}, c.Http.Cors.AllowedHeaders, "http.cors.allow_headers")
+		require.True(t, c.Http.Cors.AllowCredentials, "http.cors.allow_credentials")
 
 		// Security
 		require.Equal(t, 10, c.Security.BCryptCost, "security.bcrypt_cost")
