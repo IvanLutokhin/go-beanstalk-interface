@@ -5,13 +5,14 @@ env:
 
 before:
   hooks:
-    - go mod tidy
-    - go generate ./...
+    - go mod download
 
 builds:
   - id: api
     main: ./cmd/api
     binary: beanstalk-api
+    flags:
+      - -trimpath
     ldflags:
       - -s -w
       - -X "{{ .ModulePath }}/pkg/version.title=Beanstalk API"
@@ -62,8 +63,6 @@ dockers:
       - --label=org.opencontainers.image.url=https://github.com/IvanLutokhin/{{ .ProjectName }}
       - --label=org.opencontainers.image.licenses=MIT
       - --platform=linux/amd64
-    extra_files:
-      - configs/api.config.yaml.dist
 
 snapshot:
   name_template: "{{ incpatch .Version }}-dev"
