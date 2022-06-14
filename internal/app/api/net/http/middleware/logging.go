@@ -1,10 +1,13 @@
 package middleware
 
 import (
+	"context"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
+
+const fieldsKey = "middleware:logging:fields"
 
 type LoggingResponseWriter struct {
 	http.ResponseWriter
@@ -31,7 +34,16 @@ func (m *Logging) Middleware(next http.Handler) http.Handler {
 
 		lw := &LoggingResponseWriter{ResponseWriter: w, StatusCode: http.StatusOK}
 
-		next.ServeHTTP(lw, r)
+		ctx := context.WithValue(r.Context(), fieldsKey, map[string]interface{}{})
+
+		next.ServeHTTP(lw, r.WithContext(ctx))
+
+		fields := make([]zap.Field, 0)
+		if data, ok := ctx.Value(fieldsKey).(map[string]interface{}); ok {
+			for k, v := range data {
+				fields = append(fields, zap.Any(k, v))
+			}
+		}
 
 		m.Logger.
 			Named("http").
@@ -42,6 +54,7 @@ func (m *Logging) Middleware(next http.Handler) http.Handler {
 				zap.String("method", r.Method),
 				zap.String("uri", r.RequestURI),
 			).
+			With(fields...).
 			Info("Incoming request")
 	})
 }
