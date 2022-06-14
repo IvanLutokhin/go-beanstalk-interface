@@ -4,16 +4,13 @@ import (
 	"errors"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
-	"go.uber.org/zap"
 	"net/http"
 )
 
-type Recovery struct {
-	Logger *zap.Logger
-}
+type Recovery struct{}
 
-func NewRecovery(logger *zap.Logger) *Recovery {
-	return &Recovery{Logger: logger}
+func NewRecovery() *Recovery {
+	return &Recovery{}
 }
 
 func (m *Recovery) Middleware(next http.Handler) http.Handler {
@@ -30,10 +27,10 @@ func (m *Recovery) Middleware(next http.Handler) http.Handler {
 					err = errors.New("unknown error")
 				}
 
-				m.Logger.
-					Named("http").
-					With(zap.Error(err)).
-					Error("Internal Server Error")
+				if fields, ok := r.Context().Value("middleware:logging:fields").(map[string]interface{}); ok {
+					fields["error"] = err
+					fields["panic_occurred"] = true
+				}
 
 				writer.JSON(w, http.StatusInternalServerError, response.InternalServerError())
 			}
