@@ -1,13 +1,18 @@
 package middleware
 
 import (
+	"bytes"
 	"context"
 	"go.uber.org/zap"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
 
-const fieldsKey = "middleware:logging:fields"
+const (
+	fieldsKey = "middleware:logging:fields"
+	loggerMsg = "Incoming request"
+)
 
 type LoggingResponseWriter struct {
 	http.ResponseWriter
@@ -30,11 +35,21 @@ func NewLogging(logger *zap.Logger) *Logging {
 
 func (m *Logging) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-
 		lw := &LoggingResponseWriter{ResponseWriter: w, StatusCode: http.StatusOK}
 
+		var body bytes.Buffer
+		if r.Body != nil {
+			_, err := body.ReadFrom(r.Body)
+			if err != nil {
+				panic(err)
+			}
+
+			r.Body = ioutil.NopCloser(bytes.NewBuffer(body.Bytes()))
+		}
+
 		ctx := context.WithValue(r.Context(), fieldsKey, map[string]interface{}{})
+
+		start := time.Now()
 
 		next.ServeHTTP(lw, r.WithContext(ctx))
 
@@ -45,16 +60,26 @@ func (m *Logging) Middleware(next http.Handler) http.Handler {
 			}
 		}
 
-		m.Logger.
+		logger := m.Logger.
 			Named("http").
 			With(
 				zap.Int("status_code", lw.StatusCode),
 				zap.Duration("duration", time.Since(start)),
 				zap.String("remote_addr", r.RemoteAddr),
+				zap.String("user_agent", r.UserAgent()),
 				zap.String("method", r.Method),
 				zap.String("uri", r.RequestURI),
 			).
-			With(fields...).
-			Info("Incoming request")
+			With(fields...)
+
+		if lw.StatusCode < 400 {
+			logger.Info(loggerMsg)
+		} else if lw.StatusCode >= 400 && lw.StatusCode < 500 {
+			logger.Warn(loggerMsg)
+		} else {
+			logger.
+				With(zap.String("body", string(body.Next(1024)))).
+				Error(loggerMsg)
+		}
 	})
 }
