@@ -28,8 +28,8 @@ func NewRouter(
 	router.StrictSlash(true)
 
 	router.Use(
-		recovery.Middleware,
 		logging.Middleware,
+		recovery.Middleware,
 		cors.Middleware,
 	)
 

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,7 +21,7 @@ func TestRecovery_Middleware(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	middleware.NewRecovery(zap.NewNop()).Middleware(handler).ServeHTTP(recorder, request)
+	middleware.NewRecovery().Middleware(handler).ServeHTTP(recorder, request)
 
 	require.Equal(t, http.StatusInternalServerError, recorder.Code)
 }
