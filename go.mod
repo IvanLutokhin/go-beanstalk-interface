@@ -9,6 +9,7 @@ require (
 	github.com/go-swagger/go-swagger v0.29.0
 	github.com/gorilla/mux v1.8.0
 	github.com/stretchr/testify v1.7.2
+	github.com/urfave/cli/v2 v2.10.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.5
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/fx v1.15.0
