@@ -491,241 +491,296 @@
       "type": "object",
       "properties": {
         "binlogCurrentIndex": {
+          "description": "is the index of the current binlog file being written to. If binlog is not active this value will be 0",
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogCurrentIndex"
         },
         "binlogMaxSize": {
+          "description": "is the maximum size in bytes a binlog file is allowed to get before a new binlog file is opened",
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogMaxSize"
         },
         "binlogOldestIndex": {
+          "description": "is the index of the oldest binlog file needed to store the current jobs",
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogOldestIndex"
         },
         "binlogRecordsMigrated": {
+          "description": "is the cumulative number of records written as part of compaction",
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogRecordsMigrated"
         },
         "binlogRecordsWritten": {
+          "description": "is the cumulative number of records written to the binlog",
           "type": "integer",
           "format": "int64",
           "x-go-name": "BinlogRecordsWritten"
         },
         "cmdBury": {
+          "description": "is the cumulative number of bury commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdBury"
         },
         "cmdDelete": {
+          "description": "is the cumulative number of delete commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdDelete"
         },
         "cmdIgnore": {
+          "description": "is the cumulative number of ignore commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdIgnore"
         },
         "cmdKick": {
+          "description": "is the cumulative number of kick commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdKick"
         },
         "cmdListTubeUsed": {
+          "description": "is the cumulative number of list-tube-used commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdListTubeUsed"
         },
         "cmdListTubes": {
+          "description": "is the cumulative number of list-tubes commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdListTubes"
         },
         "cmdListTubesWatched": {
+          "description": "is the cumulative number of list-tubes-watched commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdListTubesWatched"
         },
         "cmdPauseTube": {
+          "description": "is the cumulative number of pause-tube command",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPauseTube"
         },
         "cmdPeek": {
+          "description": "is the cumulative number of peek commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeek"
         },
         "cmdPeekBuried": {
+          "description": "is the cumulative number of peek-buried commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekBuried"
         },
         "cmdPeekDelayed": {
+          "description": "is the cumulative number of peek-delayed commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekDelayed"
         },
         "cmdPeekReady": {
+          "description": "is the cumulative number of peek-ready commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPeekReady"
         },
-        "cmdPeekReserve": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "CmdPeekReserve"
-        },
-        "cmdPeekUse": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "CmdPeekUse"
-        },
         "cmdPut": {
+          "description": "is the cumulative number of put commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPut"
         },
         "cmdRelease": {
+          "description": "is the cumulative number of release commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdRelease"
         },
+        "cmdReserve": {
+          "description": "is the cumulative number of reserve commands",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdReserve"
+        },
         "cmdStats": {
+          "description": "is the cumulative number of stats commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdStats"
         },
         "cmdStatsJob": {
+          "description": "is the cumulative number of stats-job commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdStatsJob"
         },
         "cmdStatsTube": {
+          "description": "is the cumulative number of stats-tube commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdStatsTube"
         },
+        "cmdTouch": {
+          "description": "is the cumulative number of touch commands",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdTouch"
+        },
+        "cmdUse": {
+          "description": "is the cumulative number of use commands",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CmdUse"
+        },
         "cmdWatch": {
+          "description": "is the cumulative number of watch commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdWatch"
         },
         "currentConnections": {
+          "description": "is the number of currently open connections",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentConnections"
         },
         "currentJobsBuried": {
+          "description": "is the number of buried jobs",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsBuried"
         },
         "currentJobsDelayed": {
+          "description": "is the number of delayed jobs",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsDelayed"
         },
         "currentJobsReady": {
+          "description": "is the number of jobs in the ready queue",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReady"
         },
         "currentJobsReserved": {
+          "description": "is the number of jobs reserved by all clients",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReserved"
         },
         "currentJobsUrgent": {
+          "description": "is the number of ready jobs with priority \u003c 1024",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsUrgent"
         },
         "currentProducers": {
+          "description": "is the number of open connections that have each issued at least one put command",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentProducers"
         },
         "currentTubes": {
+          "description": "is the number of currently-existing tubes",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentTubes"
         },
         "currentWaiting": {
+          "description": "is the number of open connections that have issued a reserve command but not yet received a response",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWaiting"
         },
         "currentWorkers": {
+          "description": "is the number of open connections that have each issued at least one reserve command",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWorkers"
         },
         "draining": {
+          "description": "is set to \"true\" if the server is in drain mode, \"false\" otherwise",
           "type": "boolean",
           "x-go-name": "Draining"
         },
         "hostname": {
+          "description": "is the hostname of the machine as determined by uname",
           "type": "string",
           "x-go-name": "Hostname"
         },
         "id": {
+          "description": "is a random id string for this server process, generated every time beanstalkd process starts",
           "type": "string",
           "x-go-name": "ID"
         },
         "jobTimeouts": {
+          "description": "is the cumulative count of times a job has timed out",
           "type": "integer",
           "format": "int64",
           "x-go-name": "JobTimeouts"
         },
         "maxJobSize": {
+          "description": "is the maximum number of bytes in a job",
           "type": "integer",
           "format": "int64",
           "x-go-name": "MaxJobSize"
         },
         "os": {
+          "description": "is the OS version as determined by uname",
           "type": "string",
           "x-go-name": "OS"
         },
         "pid": {
+          "description": "is the process id of the server",
           "type": "integer",
           "format": "int64",
           "x-go-name": "PID"
         },
         "platform": {
+          "description": "is the machine architecture as determined by uname",
           "type": "string",
           "x-go-name": "Platform"
         },
         "rUsageSTime": {
+          "description": "is the cumulative system CPU time of this process in seconds and microseconds",
           "type": "number",
           "format": "double",
           "x-go-name": "RUsageSTime"
         },
         "rUsageUTime": {
+          "description": "is the cumulative user CPU time of this process in seconds and microseconds",
           "type": "number",
           "format": "double",
           "x-go-name": "RUsageUTime"
         },
         "totalConnections": {
+          "description": "is the cumulative count of connections",
           "type": "integer",
           "format": "int64",
           "x-go-name": "TotalConnections"
         },
         "totalJobs": {
+          "description": "is the cumulative count of jobs created",
           "type": "integer",
           "format": "int64",
           "x-go-name": "TotalJobs"
         },
         "uptime": {
+          "description": "is the number of seconds since this server process started running",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Uptime"
         },
         "version": {
+          "description": "is the version string of the server",
           "type": "string",
           "x-go-name": "Version"
         }
@@ -736,70 +791,84 @@
       "type": "object",
       "properties": {
         "age": {
+          "description": "is the time in seconds since the put command that created this job",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Age"
         },
         "buries": {
+          "description": "is the number of times this job has been buried",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Buries"
         },
         "delay": {
+          "description": "is the integer number of seconds to wait before putting this job in the ready queue",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Delay"
         },
         "file": {
+          "description": "is the number of the earliest binlog file containing this job",
           "type": "integer",
           "format": "int64",
           "x-go-name": "File"
         },
         "id": {
+          "description": "is the job id",
           "type": "integer",
           "format": "int64",
           "x-go-name": "ID"
         },
         "kicks": {
+          "description": "is the number of times this job has been kicked",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Kicks"
         },
         "priority": {
+          "description": "is the priority value set by the put, release, or bury commands",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Priority"
         },
         "releases": {
+          "description": "is the number of times a client has released this job from a reservation",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Releases"
         },
         "reserves": {
+          "description": "is the number of times this job has been reserved",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Reserves"
         },
         "state": {
+          "description": "is \"ready\" or \"delayed\" or \"reserved\" or \"buried\"",
           "type": "string",
           "x-go-name": "State"
         },
         "timeLeft": {
+          "description": "is the number of seconds left until the server puts this job into the ready queue",
           "type": "integer",
           "format": "int64",
           "x-go-name": "TimeLeft"
         },
         "timeouts": {
+          "description": "is the number of times this job has timed out during a reservation",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Timeouts"
         },
         "ttr": {
+          "description": "time to run -- is the integer number of seconds a worker is allowed to run this job",
           "type": "integer",
           "format": "int64",
           "x-go-name": "TTR"
         },
         "tube": {
+          "description": "is the name of the tube that contains this job",
           "type": "string",
           "x-go-name": "Tube"
         }
@@ -810,70 +879,84 @@
       "type": "object",
       "properties": {
         "cmdDelete": {
+          "description": "is the cumulative number of delete commands for this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdDelete"
         },
         "cmdPauseTube": {
+          "description": "is the cumulative number of pause-tube commands for this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CmdPauseTube"
         },
         "currentJobsBuried": {
+          "description": "is the number of buried jobs in this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsBuried"
         },
         "currentJobsDelayed": {
+          "description": "is the number of delayed jobs in this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsDelayed"
         },
         "currentJobsReady": {
+          "description": "is the number of jobs in the ready queue in this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReady"
         },
         "currentJobsReserved": {
+          "description": "is the number of jobs reserved by all clients in this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsReserved"
         },
         "currentJobsUrgent": {
+          "description": "is the number of ready jobs with priority \u003c 1024",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentJobsUrgent"
         },
         "currentUsing": {
+          "description": "is the number of open connections that are currently using this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentUsing"
         },
         "currentWaiting": {
+          "description": "is the number of open connections that have issued a reserve command while watching this tube but not yet received a response",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWaiting"
         },
         "currentWatching": {
+          "description": "is the number of open connections that are currently watching this tube",
           "type": "integer",
           "format": "int64",
           "x-go-name": "CurrentWatching"
         },
         "name": {
+          "description": "is the tube's name",
           "type": "string",
           "x-go-name": "Name"
         },
         "pause": {
+          "description": "is the number of seconds the tube has been paused for",
           "type": "integer",
           "format": "int64",
           "x-go-name": "Pause"
         },
         "pauseTimeLeft": {
+          "description": "is the number of seconds until the tube is un-paused",
           "type": "integer",
           "format": "int64",
           "x-go-name": "PauseTimeLeft"
         },
         "totalJobs": {
+          "description": "is the cumulative count of jobs created in this tube in the current beanstalkd process",
           "type": "integer",
           "format": "int64",
           "x-go-name": "TotalJobs"

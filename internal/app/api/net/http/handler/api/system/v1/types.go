@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/IvanLutokhin/go-beanstalk"
 	"time"
 )
@@ -9,14 +11,47 @@ type ErrorData struct {
 	Errors []string `json:"errors"`
 }
 
+type Duration time.Duration
+
+func (d Duration) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Duration(d).String())
+}
+
+func (d *Duration) UnmarshalJSON(b []byte) error {
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+
+	switch value := v.(type) {
+	case float64:
+		*d = Duration(value)
+
+		return nil
+
+	case string:
+		tmp, err := time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+
+		*d = Duration(tmp)
+
+		return nil
+
+	default:
+		return errors.New("invalid duration")
+	}
+}
+
 // Request types
 type (
 	CreateJobRequest struct {
-		Tube     string        `json:"tube"`
-		Priority uint32        `json:"priority"`
-		Delay    time.Duration `json:"delay"`
-		TTR      time.Duration `json:"ttr"`
-		Data     string        `json:"data"`
+		Tube     string   `json:"tube"`
+		Priority uint32   `json:"priority"`
+		Delay    Duration `json:"delay"`
+		TTR      Duration `json:"ttr"`
+		Data     string   `json:"data"`
 	}
 
 	BuryJobRequest struct {
@@ -24,8 +59,8 @@ type (
 	}
 
 	ReleaseJobRequest struct {
-		Priority uint32        `json:"priority"`
-		Delay    time.Duration `json:"delay"`
+		Priority uint32   `json:"priority"`
+		Delay    Duration `json:"delay"`
 	}
 )
 

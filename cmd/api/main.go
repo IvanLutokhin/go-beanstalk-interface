@@ -35,6 +35,7 @@ func main() {
 		fx.Provide(
 			func() *config.Config { return c },
 			log.NewLogger,
+			beanstalk.NewLoggerAdapter,
 			beanstalk.NewPool,
 			http.NewRouter,
 			middleware.NewCors,

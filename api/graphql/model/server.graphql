@@ -33,17 +33,17 @@ type ServerStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.Stats") 
     "is the cumulative number of peek-buried commands"
     cmdPeekBuried: Int!
 
-    "is the cumulative number of reserve commands"
-    cmdPeekReserve: Int!
-
     "is the cumulative number of use commands"
-    cmdPeekUse: Int!
+    cmdUse: Int!
 
     "is the cumulative number of watch commands"
     cmdWatch: Int!
 
     "is the cumulative number of ignore commands"
     cmdIgnore: Int!
+
+    "is the cumulative number of reserve commands"
+    cmdReserve: Int!
 
     "is the cumulative number of delete commands"
     cmdDelete: Int!
@@ -56,6 +56,9 @@ type ServerStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.Stats") 
 
     "is the cumulative number of kick commands"
     cmdKick: Int!
+
+    "is the cumulative number of touch commands"
+    cmdTouch: Int!
 
     "is the cumulative number of stats commands"
     cmdStats: Int!
