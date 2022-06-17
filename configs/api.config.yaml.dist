@@ -21,7 +21,9 @@ logger:
 beanstalk:
   address: "127.0.0.1:11300"
   pool:
-    capacity: 3
+    capacity: 25
+    max_age: 0
+    idle_timeout: 0
 
 http:
   listen_addresses: ":9999"

@@ -9,10 +9,10 @@ import (
 func RegisterHooks(lifecycle fx.Lifecycle, pool beanstalk.Pool) {
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			return pool.Open()
+			return pool.Open(ctx)
 		},
 		OnStop: func(ctx context.Context) error {
-			return pool.Close()
+			return pool.Close(ctx)
 		},
 	})
 }

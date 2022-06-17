@@ -38,7 +38,9 @@ func TestLoadOrDefault(t *testing.T) {
 
 		// Beanstalk
 		require.Equal(t, "127.0.0.1:11300", c.Beanstalk.Address, "beanstalk.address")
-		require.Equal(t, 3, c.Beanstalk.Pool.Capacity, "beanstalk.pool.capacity")
+		require.Equal(t, 25, c.Beanstalk.Pool.Capacity, "beanstalk.pool.capacity")
+		require.Equal(t, time.Duration(0), c.Beanstalk.Pool.MaxAge, "beanstalk.pool.max_age")
+		require.Equal(t, time.Duration(0), c.Beanstalk.Pool.IdleTimeout, "beanstalk.pool.idle_timeout")
 
 		// Http
 		require.Equal(t, ":9999", c.Http.ListenAddresses, "http.listen_addresses")
@@ -80,7 +82,9 @@ func TestLoadOrDefault(t *testing.T) {
 
 		// Beanstalk
 		require.Equal(t, "127.0.0.1:11300", c.Beanstalk.Address, "beanstalk.address")
-		require.Equal(t, 3, c.Beanstalk.Pool.Capacity, "beanstalk.pool.capacity")
+		require.Equal(t, 25, c.Beanstalk.Pool.Capacity, "beanstalk.pool.capacity")
+		require.Equal(t, time.Duration(0), c.Beanstalk.Pool.MaxAge, "beanstalk.pool.max_age")
+		require.Equal(t, time.Duration(0), c.Beanstalk.Pool.IdleTimeout, "beanstalk.pool.idle_timeout")
 
 		// Http
 		require.Equal(t, ":9999", c.Http.ListenAddresses, "http.listen_addresses")

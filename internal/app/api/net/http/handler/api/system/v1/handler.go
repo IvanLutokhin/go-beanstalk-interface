@@ -12,6 +12,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func GetEmbedFiles(fs http.FileSystem) http.Handler {
@@ -128,7 +129,7 @@ func CreateJob() beanstalk.Handler {
 			panic(err)
 		}
 
-		id, err := c.Put(request.Priority, request.Delay, request.TTR, []byte(request.Data))
+		id, err := c.Put(request.Priority, time.Duration(request.Delay), time.Duration(request.TTR), []byte(request.Data))
 		if err != nil {
 			panic(err)
 		}
@@ -306,7 +307,7 @@ func ReleaseJob() beanstalk.Handler {
 			return
 		}
 
-		if err = c.Release(id, request.Priority, request.Delay); err != nil {
+		if err = c.Release(id, request.Priority, time.Duration(request.Delay)); err != nil {
 			if errors.Is(err, beanstalk.ErrNotFound) {
 				writer.JSON(w, http.StatusNotFound, response.NotFound())
 

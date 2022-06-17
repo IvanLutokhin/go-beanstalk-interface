@@ -48,7 +48,9 @@ type BeanstalkConfig struct {
 }
 
 type PoolConfig struct {
-	Capacity int `yaml:"capacity"`
+	Capacity    int           `yaml:"capacity"`
+	MaxAge      time.Duration `yaml:"max_age"`
+	IdleTimeout time.Duration `yaml:"idle_timeout"`
 }
 
 type HttpConfig struct {
@@ -138,7 +140,9 @@ func Default() *Config {
 		Beanstalk: BeanstalkConfig{
 			Address: env.MustGetString("BI_SERVER_ADDRESS", "127.0.0.1:11300"),
 			Pool: PoolConfig{
-				Capacity: env.MustGetInt("BI_POOL_CAPACITY", 3),
+				Capacity:    env.MustGetInt("BI_POOL_CAPACITY", 25),
+				MaxAge:      0,
+				IdleTimeout: 0,
 			},
 		},
 		Http: HttpConfig{

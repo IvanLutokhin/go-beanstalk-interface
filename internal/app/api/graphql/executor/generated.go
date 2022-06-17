@@ -135,13 +135,14 @@ type ComplexityRoot struct {
 		CmdPeekBuried         func(childComplexity int) int
 		CmdPeekDelayed        func(childComplexity int) int
 		CmdPeekReady          func(childComplexity int) int
-		CmdPeekReserve        func(childComplexity int) int
-		CmdPeekUse            func(childComplexity int) int
 		CmdPut                func(childComplexity int) int
 		CmdRelease            func(childComplexity int) int
+		CmdReserve            func(childComplexity int) int
 		CmdStats              func(childComplexity int) int
 		CmdStatsJob           func(childComplexity int) int
 		CmdStatsTube          func(childComplexity int) int
+		CmdTouch              func(childComplexity int) int
+		CmdUse                func(childComplexity int) int
 		CmdWatch              func(childComplexity int) int
 		CurrentConnections    func(childComplexity int) int
 		CurrentJobsBuried     func(childComplexity int) int
@@ -644,20 +645,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ServerStats.CmdPeekReady(childComplexity), true
 
-	case "ServerStats.cmdPeekReserve":
-		if e.complexity.ServerStats.CmdPeekReserve == nil {
-			break
-		}
-
-		return e.complexity.ServerStats.CmdPeekReserve(childComplexity), true
-
-	case "ServerStats.cmdPeekUse":
-		if e.complexity.ServerStats.CmdPeekUse == nil {
-			break
-		}
-
-		return e.complexity.ServerStats.CmdPeekUse(childComplexity), true
-
 	case "ServerStats.cmdPut":
 		if e.complexity.ServerStats.CmdPut == nil {
 			break
@@ -671,6 +658,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServerStats.CmdRelease(childComplexity), true
+
+	case "ServerStats.cmdReserve":
+		if e.complexity.ServerStats.CmdReserve == nil {
+			break
+		}
+
+		return e.complexity.ServerStats.CmdReserve(childComplexity), true
 
 	case "ServerStats.cmdStats":
 		if e.complexity.ServerStats.CmdStats == nil {
@@ -692,6 +686,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ServerStats.CmdStatsTube(childComplexity), true
+
+	case "ServerStats.cmdTouch":
+		if e.complexity.ServerStats.CmdTouch == nil {
+			break
+		}
+
+		return e.complexity.ServerStats.CmdTouch(childComplexity), true
+
+	case "ServerStats.cmdUse":
+		if e.complexity.ServerStats.CmdUse == nil {
+			break
+		}
+
+		return e.complexity.ServerStats.CmdUse(childComplexity), true
 
 	case "ServerStats.cmdWatch":
 		if e.complexity.ServerStats.CmdWatch == nil {
@@ -1167,17 +1175,17 @@ type ServerStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.Stats") 
     "is the cumulative number of peek-buried commands"
     cmdPeekBuried: Int!
 
-    "is the cumulative number of reserve commands"
-    cmdPeekReserve: Int!
-
     "is the cumulative number of use commands"
-    cmdPeekUse: Int!
+    cmdUse: Int!
 
     "is the cumulative number of watch commands"
     cmdWatch: Int!
 
     "is the cumulative number of ignore commands"
     cmdIgnore: Int!
+
+    "is the cumulative number of reserve commands"
+    cmdReserve: Int!
 
     "is the cumulative number of delete commands"
     cmdDelete: Int!
@@ -1190,6 +1198,9 @@ type ServerStats @goModel(model: "github.com/IvanLutokhin/go-beanstalk/.Stats") 
 
     "is the cumulative number of kick commands"
     cmdKick: Int!
+
+    "is the cumulative number of touch commands"
+    cmdTouch: Int!
 
     "is the cumulative number of stats commands"
     cmdStats: Int!
@@ -3406,14 +3417,14 @@ func (ec *executionContext) fieldContext_Server_stats(ctx context.Context, field
 				return ec.fieldContext_ServerStats_cmdPeekDelayed(ctx, field)
 			case "cmdPeekBuried":
 				return ec.fieldContext_ServerStats_cmdPeekBuried(ctx, field)
-			case "cmdPeekReserve":
-				return ec.fieldContext_ServerStats_cmdPeekReserve(ctx, field)
-			case "cmdPeekUse":
-				return ec.fieldContext_ServerStats_cmdPeekUse(ctx, field)
+			case "cmdUse":
+				return ec.fieldContext_ServerStats_cmdUse(ctx, field)
 			case "cmdWatch":
 				return ec.fieldContext_ServerStats_cmdWatch(ctx, field)
 			case "cmdIgnore":
 				return ec.fieldContext_ServerStats_cmdIgnore(ctx, field)
+			case "cmdReserve":
+				return ec.fieldContext_ServerStats_cmdReserve(ctx, field)
 			case "cmdDelete":
 				return ec.fieldContext_ServerStats_cmdDelete(ctx, field)
 			case "cmdRelease":
@@ -3422,6 +3433,8 @@ func (ec *executionContext) fieldContext_Server_stats(ctx context.Context, field
 				return ec.fieldContext_ServerStats_cmdBury(ctx, field)
 			case "cmdKick":
 				return ec.fieldContext_ServerStats_cmdKick(ctx, field)
+			case "cmdTouch":
+				return ec.fieldContext_ServerStats_cmdTouch(ctx, field)
 			case "cmdStats":
 				return ec.fieldContext_ServerStats_cmdStats(ctx, field)
 			case "cmdStatsJob":
@@ -3931,8 +3944,8 @@ func (ec *executionContext) fieldContext_ServerStats_cmdPeekBuried(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerStats_cmdPeekReserve(ctx context.Context, field graphql.CollectedField, obj *beanstalk.Stats) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServerStats_cmdPeekReserve(ctx, field)
+func (ec *executionContext) _ServerStats_cmdUse(ctx context.Context, field graphql.CollectedField, obj *beanstalk.Stats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServerStats_cmdUse(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3945,7 +3958,7 @@ func (ec *executionContext) _ServerStats_cmdPeekReserve(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CmdPeekReserve, nil
+		return obj.CmdUse, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3962,51 +3975,7 @@ func (ec *executionContext) _ServerStats_cmdPeekReserve(ctx context.Context, fie
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ServerStats_cmdPeekReserve(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServerStats",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ServerStats_cmdPeekUse(ctx context.Context, field graphql.CollectedField, obj *beanstalk.Stats) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServerStats_cmdPeekUse(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CmdPeekUse, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ServerStats_cmdPeekUse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ServerStats_cmdUse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServerStats",
 		Field:      field,
@@ -4095,6 +4064,50 @@ func (ec *executionContext) _ServerStats_cmdIgnore(ctx context.Context, field gr
 }
 
 func (ec *executionContext) fieldContext_ServerStats_cmdIgnore(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServerStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServerStats_cmdReserve(ctx context.Context, field graphql.CollectedField, obj *beanstalk.Stats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServerStats_cmdReserve(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CmdReserve, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServerStats_cmdReserve(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServerStats",
 		Field:      field,
@@ -4271,6 +4284,50 @@ func (ec *executionContext) _ServerStats_cmdKick(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_ServerStats_cmdKick(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ServerStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ServerStats_cmdTouch(ctx context.Context, field graphql.CollectedField, obj *beanstalk.Stats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ServerStats_cmdTouch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CmdTouch, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ServerStats_cmdTouch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServerStats",
 		Field:      field,
@@ -9421,19 +9478,9 @@ func (ec *executionContext) _ServerStats(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "cmdPeekReserve":
+		case "cmdUse":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._ServerStats_cmdPeekReserve(ctx, field, obj)
-			}
-
-			out.Values[i] = innerFunc(ctx)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "cmdPeekUse":
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._ServerStats_cmdPeekUse(ctx, field, obj)
+				return ec._ServerStats_cmdUse(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -9454,6 +9501,16 @@ func (ec *executionContext) _ServerStats(ctx context.Context, sel ast.SelectionS
 		case "cmdIgnore":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._ServerStats_cmdIgnore(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "cmdReserve":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._ServerStats_cmdReserve(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -9494,6 +9551,16 @@ func (ec *executionContext) _ServerStats(ctx context.Context, sel ast.SelectionS
 		case "cmdKick":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._ServerStats_cmdKick(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "cmdTouch":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._ServerStats_cmdTouch(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
