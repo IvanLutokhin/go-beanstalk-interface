@@ -17,6 +17,7 @@ dist/
 vendor/
 
 .coverage
+coverage.html
 
 # IntelliJ project files
 *.iml

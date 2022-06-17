@@ -1,3 +1,5 @@
+//go:generate go run github.com/go-swagger/go-swagger/cmd/swagger generate spec -o $ROOT_DIR/api/system/v1/swagger.json --scan-models
+
 // Package v1 Beanstalk API
 //
 // Documentation of Beanstalk API.
