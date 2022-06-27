@@ -79,7 +79,7 @@ func registerHooks(lifecycle fx.Lifecycle) {
 }
 
 func exitOnError(err error) {
-	fmt.Println(err)
+	fmt.Fprint(os.Stderr, err)
 
 	os.Exit(1)
 }
