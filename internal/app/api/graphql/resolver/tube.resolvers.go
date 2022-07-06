@@ -27,7 +27,7 @@ func (r *tubeResolver) Stats(ctx context.Context, obj *model.Tube) (*beanstalk.S
 		return nil, err
 	}
 
-	return &stats, nil
+	return stats, nil
 }
 
 func (r *tubeResolver) ReadyJob(ctx context.Context, obj *model.Tube) (*model.Job, error) {
@@ -53,12 +53,12 @@ func (r *tubeResolver) ReadyJob(ctx context.Context, obj *model.Tube) (*model.Jo
 		return nil, err
 	}
 
-	job := model.Job{
+	job := &model.Job{
 		ID:   peeked.ID,
 		Data: string(peeked.Data),
 	}
 
-	return &job, nil
+	return job, nil
 }
 
 func (r *tubeResolver) DelayedJob(ctx context.Context, obj *model.Tube) (*model.Job, error) {
@@ -84,12 +84,12 @@ func (r *tubeResolver) DelayedJob(ctx context.Context, obj *model.Tube) (*model.
 		return nil, err
 	}
 
-	job := model.Job{
+	job := &model.Job{
 		ID:   peeked.ID,
 		Data: string(peeked.Data),
 	}
 
-	return &job, nil
+	return job, nil
 }
 
 func (r *tubeResolver) BuriedJob(ctx context.Context, obj *model.Tube) (*model.Job, error) {
@@ -115,12 +115,12 @@ func (r *tubeResolver) BuriedJob(ctx context.Context, obj *model.Tube) (*model.J
 		return nil, err
 	}
 
-	job := model.Job{
+	job := &model.Job{
 		ID:   peeked.ID,
 		Data: string(peeked.Data),
 	}
 
-	return &job, nil
+	return job, nil
 }
 
 // Tube returns executor.TubeResolver implementation.

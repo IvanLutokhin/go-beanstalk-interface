@@ -35,7 +35,7 @@ func TestGetEmbedFiles(t *testing.T) {
 }
 
 func TestGetServerStats(t *testing.T) {
-	expectedStats := beanstalk.Stats{
+	expectedStats := &beanstalk.Stats{
 		CurrentJobsUrgent:     1,
 		CurrentJobsReady:      1,
 		CurrentJobsReserved:   1,
@@ -186,7 +186,7 @@ func TestGetTubes(t *testing.T) {
 }
 
 func TestGetTubeStats(t *testing.T) {
-	expectedStats := beanstalk.StatsTube{
+	expectedStats := &beanstalk.StatsTube{
 		Name:                "default",
 		CurrentJobsUrgent:   1,
 		CurrentJobsReady:    1,
@@ -205,7 +205,7 @@ func TestGetTubeStats(t *testing.T) {
 
 	client := &mock.Client{}
 	client.On("StatsTube", "default").Return(expectedStats, nil)
-	client.On("StatsTube", "not_found").Return(beanstalk.StatsTube{}, beanstalk.ErrNotFound)
+	client.On("StatsTube", "not_found").Return(nil, beanstalk.ErrNotFound)
 
 	pool := mock.NewPool(client)
 
@@ -318,8 +318,8 @@ func TestCreateJob(t *testing.T) {
 
 func TestGetJob(t *testing.T) {
 	client := &mock.Client{}
-	client.On("Peek", 1).Return(beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
-	client.On("Peek", 999).Return(beanstalk.Job{}, beanstalk.ErrNotFound)
+	client.On("Peek", 1).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+	client.On("Peek", 999).Return(nil, beanstalk.ErrNotFound)
 
 	pool := mock.NewPool(client)
 
@@ -571,7 +571,7 @@ func TestReleaseJob(t *testing.T) {
 }
 
 func TestGetJobsStats(t *testing.T) {
-	expectedStats := beanstalk.StatsJob{
+	expectedStats := &beanstalk.StatsJob{
 		ID:       1,
 		Tube:     "default",
 		State:    "ready",
@@ -590,7 +590,7 @@ func TestGetJobsStats(t *testing.T) {
 
 	client := &mock.Client{}
 	client.On("StatsJob", 1).Return(expectedStats, nil)
-	client.On("StatsJob", 999).Return(beanstalk.StatsJob{}, beanstalk.ErrNotFound)
+	client.On("StatsJob", 999).Return(nil, beanstalk.ErrNotFound)
 
 	pool := mock.NewPool(client)
 

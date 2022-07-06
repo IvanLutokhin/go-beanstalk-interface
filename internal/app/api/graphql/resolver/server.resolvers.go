@@ -26,7 +26,7 @@ func (r *serverResolver) Stats(ctx context.Context, obj *model.Server) (*beansta
 		return nil, err
 	}
 
-	return &stats, nil
+	return stats, nil
 }
 
 // Server returns executor.ServerResolver implementation.

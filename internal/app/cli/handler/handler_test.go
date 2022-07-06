@@ -255,7 +255,7 @@ func TestHandler_Peek(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		client := &mock.Client{}
-		client.On("Peek", 1).Return(beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+		client.On("Peek", 1).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
 		client.On("Close", mock.Anything).Return(nil)
 
 		h := &handler.Handler{
@@ -282,7 +282,7 @@ func TestHandler_Peek(t *testing.T) {
 func TestHandler_PeekReady(t *testing.T) {
 	client := &mock.Client{}
 	client.On("Use", "default").Return("default", nil)
-	client.On("PeekReady", mock.Anything).Return(beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+	client.On("PeekReady", mock.Anything).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
 	client.On("Close", mock.Anything).Return(nil)
 
 	h := &handler.Handler{
@@ -308,7 +308,7 @@ func TestHandler_PeekReady(t *testing.T) {
 func TestHandler_PeekDelayed(t *testing.T) {
 	client := &mock.Client{}
 	client.On("Use", "default").Return("default", nil)
-	client.On("PeekDelayed", mock.Anything).Return(beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+	client.On("PeekDelayed", mock.Anything).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
 	client.On("Close", mock.Anything).Return(nil)
 
 	h := &handler.Handler{
@@ -334,7 +334,7 @@ func TestHandler_PeekDelayed(t *testing.T) {
 func TestHandler_PeekBuried(t *testing.T) {
 	client := &mock.Client{}
 	client.On("Use", "default").Return("default", nil)
-	client.On("PeekBuried", mock.Anything).Return(beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+	client.On("PeekBuried", mock.Anything).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
 	client.On("Close", mock.Anything).Return(nil)
 
 	h := &handler.Handler{
@@ -502,7 +502,7 @@ func TestHandler_StatsJob(t *testing.T) {
 	})
 
 	t.Run("success", func(t *testing.T) {
-		expectedStats := beanstalk.StatsJob{
+		expectedStats := &beanstalk.StatsJob{
 			ID:       1,
 			Tube:     "default",
 			State:    "ready",
@@ -572,7 +572,7 @@ func TestHandler_StatsTube(t *testing.T) {
 	})
 
 	t.Run("success", func(t *testing.T) {
-		expectedStats := beanstalk.StatsTube{
+		expectedStats := &beanstalk.StatsTube{
 			Name:                "default",
 			CurrentJobsUrgent:   1,
 			CurrentJobsReady:    1,
@@ -626,7 +626,7 @@ func TestHandler_StatsTube(t *testing.T) {
 }
 
 func TestHandler_Stats(t *testing.T) {
-	expectedStats := beanstalk.Stats{
+	expectedStats := &beanstalk.Stats{
 		CurrentJobsUrgent:     1,
 		CurrentJobsReady:      1,
 		CurrentJobsReserved:   1,

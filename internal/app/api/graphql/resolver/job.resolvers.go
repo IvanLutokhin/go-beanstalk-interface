@@ -26,7 +26,7 @@ func (r *jobResolver) Stats(ctx context.Context, obj *model.Job) (*beanstalk.Sta
 		return nil, err
 	}
 
-	return &stats, nil
+	return stats, nil
 }
 
 // Job returns executor.JobResolver implementation.
