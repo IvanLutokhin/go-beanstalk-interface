@@ -49,10 +49,12 @@ func TestLoadOrDefault(t *testing.T) {
 		require.Equal(t, 60*time.Second, c.Http.IdleTimeout, "http.idle_timeout")
 		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowedOrigins, "http.cors.allow_origins")
 		require.ElementsMatch(t, []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}, c.Http.Cors.AllowedMethods, "http.cors.allow_methods")
-		require.ElementsMatch(t, []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"}, c.Http.Cors.AllowedHeaders, "http.cors.allow_headers")
+		require.ElementsMatch(t, []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With", "X-Auth-Token"}, c.Http.Cors.AllowedHeaders, "http.cors.allow_headers")
 		require.True(t, c.Http.Cors.AllowCredentials, "http.cors.allow_credentials")
 
 		// Security
+		require.Equal(t, "secret", c.Security.Secret, "security.secret")
+		require.Equal(t, time.Hour, c.Security.TokenTTL, "security.token_ttl")
 		require.Equal(t, 10, c.Security.BCryptCost, "security.bcrypt_cost")
 		require.Len(t, c.Security.Users, 1, "security.users")
 		require.Equal(t, "admin", c.Security.Users[0].Name, "security.users[0].name")
@@ -93,10 +95,12 @@ func TestLoadOrDefault(t *testing.T) {
 		require.Equal(t, 60*time.Second, c.Http.IdleTimeout, "http.idle_timeout")
 		require.ElementsMatch(t, []string{"*"}, c.Http.Cors.AllowedOrigins, "http.cors.allow_origins")
 		require.ElementsMatch(t, []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"}, c.Http.Cors.AllowedMethods, "http.cors.allow_methods")
-		require.ElementsMatch(t, []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"}, c.Http.Cors.AllowedHeaders, "http.cors.allow_headers")
+		require.ElementsMatch(t, []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With", "X-Auth-Token"}, c.Http.Cors.AllowedHeaders, "http.cors.allow_headers")
 		require.True(t, c.Http.Cors.AllowCredentials, "http.cors.allow_credentials")
 
 		// Security
+		require.Equal(t, "secret", c.Security.Secret, "security.secret")
+		require.Equal(t, time.Hour, c.Security.TokenTTL, "security.token_ttl")
 		require.Equal(t, 10, c.Security.BCryptCost, "security.bcrypt_cost")
 		require.Len(t, c.Security.Users, 1, "security.users")
 		require.Equal(t, "admin", c.Security.Users[0].Name, "security.users[0].name")

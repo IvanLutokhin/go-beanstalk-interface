@@ -42,6 +42,8 @@ func main() {
 			middleware.NewLogging,
 			middleware.NewRecovery,
 			security.NewUserProvider,
+			security.NewTokenGenerator,
+			security.NewTokenExtractor,
 		),
 		fx.Invoke(
 			registerHooks,
