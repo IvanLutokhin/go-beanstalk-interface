@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/99designs/gqlgen v0.17.10
-	github.com/IvanLutokhin/go-beanstalk v0.8.2
+	github.com/IvanLutokhin/go-beanstalk v0.9.1
 	github.com/go-swagger/go-swagger v0.29.0
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/gorilla/mux v1.8.0

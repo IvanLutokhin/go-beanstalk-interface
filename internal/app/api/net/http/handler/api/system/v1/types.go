@@ -67,7 +67,7 @@ type (
 // Response types
 type (
 	ServerStatsResponse struct {
-		Stats beanstalk.Stats `json:"stats"`
+		Stats *beanstalk.Stats `json:"stats"`
 	}
 
 	TubesResponse struct {
@@ -75,7 +75,7 @@ type (
 	}
 
 	TubeStatsResponse struct {
-		Stats beanstalk.StatsTube `json:"stats"`
+		Stats *beanstalk.StatsTube `json:"stats"`
 	}
 
 	CreateJobResponse struct {
@@ -88,7 +88,7 @@ type (
 	}
 
 	JobStatsResponse struct {
-		Stats beanstalk.StatsJob `json:"stats"`
+		Stats *beanstalk.StatsJob `json:"stats"`
 	}
 )
 

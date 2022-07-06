@@ -50,7 +50,7 @@ query Me() {
 }
 
 func TestQueryResolver_Server(t *testing.T) {
-	expectedStats := beanstalk.Stats{
+	expectedStats := &beanstalk.Stats{
 		CurrentJobsUrgent:     1,
 		CurrentJobsReady:      1,
 		CurrentJobsReserved:   1,
@@ -227,7 +227,7 @@ query Server() {
 }
 
 func TestQueryResolver_Tubes(t *testing.T) {
-	expectedTubeStats := beanstalk.StatsTube{
+	expectedTubeStats := &beanstalk.StatsTube{
 		Name:                "default",
 		CurrentJobsUrgent:   1,
 		CurrentJobsReady:    1,
@@ -244,7 +244,7 @@ func TestQueryResolver_Tubes(t *testing.T) {
 		PauseTimeLeft:       10,
 	}
 
-	expectedReadyJobStats := beanstalk.StatsJob{
+	expectedReadyJobStats := &beanstalk.StatsJob{
 		ID:       1,
 		Tube:     "default",
 		State:    "ready",
@@ -261,7 +261,7 @@ func TestQueryResolver_Tubes(t *testing.T) {
 		Kicks:    1,
 	}
 
-	expectedDelayedJobStats := beanstalk.StatsJob{
+	expectedDelayedJobStats := &beanstalk.StatsJob{
 		ID:       2,
 		Tube:     "default",
 		State:    "delayed",
@@ -278,7 +278,7 @@ func TestQueryResolver_Tubes(t *testing.T) {
 		Kicks:    2,
 	}
 
-	expectedBuriedJobStats := beanstalk.StatsJob{
+	expectedBuriedJobStats := &beanstalk.StatsJob{
 		ID:       3,
 		Tube:     "default",
 		State:    "buried",
@@ -299,11 +299,11 @@ func TestQueryResolver_Tubes(t *testing.T) {
 	mc.On("ListTubes").Return([]string{"default"}, nil)
 	mc.On("StatsTube", "default").Return(expectedTubeStats, nil)
 	mc.On("Use", "default").Return("default", nil)
-	mc.On("PeekReady").Return(beanstalk.Job{ID: 1, Data: []byte("test 1")}, nil)
+	mc.On("PeekReady").Return(&beanstalk.Job{ID: 1, Data: []byte("test 1")}, nil)
 	mc.On("StatsJob", 1).Return(expectedReadyJobStats, nil)
-	mc.On("PeekDelayed").Return(beanstalk.Job{ID: 2, Data: []byte("test 2")}, nil)
+	mc.On("PeekDelayed").Return(&beanstalk.Job{ID: 2, Data: []byte("test 2")}, nil)
 	mc.On("StatsJob", 2).Return(expectedDelayedJobStats, nil)
-	mc.On("PeekBuried").Return(beanstalk.Job{ID: 3, Data: []byte("test 3")}, nil)
+	mc.On("PeekBuried").Return(&beanstalk.Job{ID: 3, Data: []byte("test 3")}, nil)
 	mc.On("StatsJob", 3).Return(expectedBuriedJobStats, nil)
 
 	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(mock.NewPool(mc))}))
@@ -444,7 +444,7 @@ fragment job on Job {
 }
 
 func TestQueryResolver_Tube(t *testing.T) {
-	expectedTubeStats := beanstalk.StatsTube{
+	expectedTubeStats := &beanstalk.StatsTube{
 		Name:                "default",
 		CurrentJobsUrgent:   1,
 		CurrentJobsReady:    1,
@@ -465,11 +465,11 @@ func TestQueryResolver_Tube(t *testing.T) {
 	mc.On("ListTubes").Return([]string{"default"}, nil)
 	mc.On("StatsTube", "default").Return(expectedTubeStats, nil)
 	mc.On("Use", "default").Return("default", nil)
-	mc.On("StatsTube", "test").Return(beanstalk.StatsTube{}, beanstalk.ErrNotFound)
+	mc.On("StatsTube", "test").Return(nil, beanstalk.ErrNotFound)
 	mc.On("Use", "test").Return("test", nil)
-	mc.On("PeekReady").Return(beanstalk.Job{}, beanstalk.ErrNotFound)
-	mc.On("PeekDelayed").Return(beanstalk.Job{}, beanstalk.ErrNotFound)
-	mc.On("PeekBuried").Return(beanstalk.Job{}, beanstalk.ErrNotFound)
+	mc.On("PeekReady").Return(nil, beanstalk.ErrNotFound)
+	mc.On("PeekDelayed").Return(nil, beanstalk.ErrNotFound)
+	mc.On("PeekBuried").Return(nil, beanstalk.ErrNotFound)
 
 	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(mock.NewPool(mc))}))
 
@@ -569,7 +569,7 @@ fragment job on Job {
 }
 
 func TestQueryResolver_Job(t *testing.T) {
-	expectedStats := beanstalk.StatsJob{
+	expectedStats := &beanstalk.StatsJob{
 		ID:       1,
 		Tube:     "default",
 		State:    "ready",
@@ -588,9 +588,9 @@ func TestQueryResolver_Job(t *testing.T) {
 
 	mc := &mock.Client{}
 	mc.On("Use", "default").Return("default", nil)
-	mc.On("Peek", 1).Return(beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+	mc.On("Peek", 1).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
 	mc.On("StatsJob", 1).Return(expectedStats, nil)
-	mc.On("Peek", 999).Return(beanstalk.Job{}, beanstalk.ErrNotFound)
+	mc.On("Peek", 999).Return(nil, beanstalk.ErrNotFound)
 
 	h := handler.NewDefaultServer(executor.NewExecutableSchema(executor.Config{Resolvers: resolver.NewResolver(mock.NewPool(mc))}))
 

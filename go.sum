@@ -55,8 +55,10 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
-github.com/IvanLutokhin/go-beanstalk v0.8.2 h1:RD84V2KjO1K2BpT+VThVRSbZbgQercXW6Va5e0P/uFI=
-github.com/IvanLutokhin/go-beanstalk v0.8.2/go.mod h1:h/ptcFNkRPHJ3R9xj1BAPtjTF2zjUuCIAyo9iPz4uVo=
+github.com/IvanLutokhin/go-beanstalk v0.9.0 h1:6Hz+qSDHJg6pM5Zj9nSBzVSNIZHjJ+PbL5P/+5E79hU=
+github.com/IvanLutokhin/go-beanstalk v0.9.0/go.mod h1:h/ptcFNkRPHJ3R9xj1BAPtjTF2zjUuCIAyo9iPz4uVo=
+github.com/IvanLutokhin/go-beanstalk v0.9.1 h1:pu9YE3go6Z2rYvmQ5pvkJ+NR9yz0VF02rTero+UQhv8=
+github.com/IvanLutokhin/go-beanstalk v0.9.1/go.mod h1:h/ptcFNkRPHJ3R9xj1BAPtjTF2zjUuCIAyo9iPz4uVo=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/purell v1.1.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tNFfI=
