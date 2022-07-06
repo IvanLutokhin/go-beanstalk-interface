@@ -1,6 +1,7 @@
 package middleware_test
 
 import (
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/config"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
@@ -9,10 +10,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestAuth(t *testing.T) {
-	user := security.NewUser(
+	provider := security.NewUserProvider()
+	provider.Set("test", security.NewUser(
 		"test",
 		[]byte("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC"),
 		[]security.Scope{
@@ -20,10 +23,20 @@ func TestAuth(t *testing.T) {
 			security.ScopeReadTubes,
 			security.ScopeReadJobs,
 		},
-	)
+	))
 
-	provider := security.NewUserProvider()
-	provider.Set(user.Name(), user)
+	generator := security.NewTokenGenerator(&config.Config{
+		Security: config.SecurityConfig{
+			Secret:   "test",
+			TokenTTL: time.Minute,
+		},
+	})
+
+	extractor := security.NewTokenExtractor(&config.Config{
+		Security: config.SecurityConfig{
+			Secret: "test",
+		},
+	})
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		writer.JSON(w, http.StatusOK, response.Success(nil))
@@ -37,12 +50,12 @@ func TestAuth(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
+		middleware.Auth(provider, extractor, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 
-	t.Run("illegal", func(t *testing.T) {
+	t.Run("invalid token", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
 
 		request, err := http.NewRequest(http.MethodGet, "/api", nil)
@@ -50,9 +63,9 @@ func TestAuth(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		request.Header.Set("Authorization", "test")
+		request.Header.Set("X-Auth-Token", "test")
 
-		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
+		middleware.Auth(provider, extractor, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
@@ -65,9 +78,19 @@ func TestAuth(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		request.SetBasicAuth("test", "test")
+		claims := &security.TokenClaims{
+			Request: request,
+			User:    security.NewUser("qwerty", nil, []security.Scope{}),
+		}
 
-		middleware.Auth(provider, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
+		token, err := generator.Generate(claims)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		request.Header.Set("X-Auth-Token", token)
+
+		middleware.Auth(provider, extractor, []security.Scope{}).Middleware(handler).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
@@ -80,9 +103,19 @@ func TestAuth(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		request.SetBasicAuth("test", "password")
+		claims := &security.TokenClaims{
+			Request: request,
+			User:    provider.Get("test"),
+		}
 
-		middleware.Auth(provider, []security.Scope{security.ScopeWriteJobs}).Middleware(handler).ServeHTTP(recorder, request)
+		token, err := generator.Generate(claims)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		request.Header.Set("X-Auth-Token", token)
+
+		middleware.Auth(provider, extractor, []security.Scope{security.ScopeWriteJobs}).Middleware(handler).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusForbidden, recorder.Code)
 		require.Equal(t, `{"status":"failure","message":"Forbidden","data":{"errors":["required scopes [write:jobs]"]}}`, recorder.Body.String())
@@ -96,9 +129,19 @@ func TestAuth(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		request.SetBasicAuth("test", "password")
+		claims := &security.TokenClaims{
+			Request: request,
+			User:    provider.Get("test"),
+		}
 
-		middleware.Auth(provider, []security.Scope{security.ScopeReadServer}).Middleware(handler).ServeHTTP(recorder, request)
+		token, err := generator.Generate(claims)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		request.Header.Set("X-Auth-Token", token)
+
+		middleware.Auth(provider, extractor, []security.Scope{security.ScopeReadServer}).Middleware(handler).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusOK, recorder.Code)
 	})

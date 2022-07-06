@@ -33,10 +33,12 @@ http:
   cors:
     allowed_origins: ["*"]
     allowed_methods: ["HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"]
-    allowed_headers: ["Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"]
+    allowed_headers: ["Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With", "X-Auth-Token"]
     allow_credentials: true
 
 security:
+  secret: secret
+  token_ttl: 1h
   bcrypt_cost: 10
   users:
     - name: "admin"

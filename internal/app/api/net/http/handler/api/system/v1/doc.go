@@ -15,8 +15,10 @@
 // - application/json
 //
 // SecurityDefinitions:
-//    basicAuth:
-//       type: basic
+//    key:
+//       type: apiKey
+//       in: header
+//       name: x-auth-token
 //
 // swagger:meta
 package v1

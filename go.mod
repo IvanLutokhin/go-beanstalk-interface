@@ -5,11 +5,11 @@ go 1.16
 require (
 	github.com/99designs/gqlgen v0.17.10
 	github.com/IvanLutokhin/go-beanstalk v0.8.2
-	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/go-swagger/go-swagger v0.29.0
+	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/gorilla/mux v1.8.0
 	github.com/stretchr/testify v1.7.2
-	github.com/urfave/cli/v2 v2.10.2 // indirect
+	github.com/urfave/cli/v2 v2.10.2
 	github.com/vektah/gqlparser/v2 v2.4.5
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/fx v1.15.0

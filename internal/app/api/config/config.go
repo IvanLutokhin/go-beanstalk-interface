@@ -69,8 +69,10 @@ type CorsConfig struct {
 }
 
 type SecurityConfig struct {
-	BCryptCost int          `yaml:"bcrypt_cost"`
-	Users      []UserConfig `yaml:"users"`
+	Secret     string        `yaml:"secret"`
+	TokenTTL   time.Duration `yaml:"token_ttl"`
+	BCryptCost int           `yaml:"bcrypt_cost"`
+	Users      []UserConfig  `yaml:"users"`
 }
 
 type UserConfig struct {
@@ -153,11 +155,13 @@ func Default() *Config {
 			Cors: CorsConfig{
 				AllowedOrigins:   []string{"*"},
 				AllowedMethods:   []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
-				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"},
+				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With", "X-Auth-Token"},
 				AllowCredentials: true,
 			},
 		},
 		Security: SecurityConfig{
+			Secret:     env.MustGetString("BI_SECURITY_SECRET", "secret"),
+			TokenTTL:   time.Hour,
 			BCryptCost: env.MustGetInt("BI_SECURITY_BCRYPT_COST", 10),
 			Users: []UserConfig{
 				{

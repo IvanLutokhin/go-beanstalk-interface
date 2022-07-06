@@ -21,7 +21,7 @@
       "post": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -54,7 +54,7 @@
       "get": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -93,7 +93,7 @@
       "post": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -139,7 +139,7 @@
       "post": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -175,7 +175,7 @@
       "post": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -211,7 +211,7 @@
       "post": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -257,7 +257,7 @@
       "get": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -293,7 +293,7 @@
       "get": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -314,7 +314,7 @@
       "get": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -335,7 +335,7 @@
       "get": {
         "security": [
           {
-            "basicAuth": [
+            "key": [
               "[]"
             ]
           }
@@ -1137,8 +1137,10 @@
     }
   },
   "securityDefinitions": {
-    "basicAuth": {
-      "type": "basic"
+    "key": {
+      "type": "apiKey",
+      "name": "x-auth-token",
+      "in": "header"
     }
   }
 }

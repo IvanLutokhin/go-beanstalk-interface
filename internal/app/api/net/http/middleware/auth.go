@@ -5,15 +5,30 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
-func Auth(provider *security.UserProvider, expectedScopes []security.Scope) mux.MiddlewareFunc {
+func Auth(provider *security.UserProvider, extractor *security.TokenExtractor, expectedScopes []security.Scope) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			username, password, ok := r.BasicAuth()
+			tokenString := r.Header.Get("X-Auth-Token")
+			if len(tokenString) == 0 {
+				writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
 
+				return
+			}
+
+			token, err := extractor.Extract(tokenString)
+			if err != nil {
+				fmt.Println(err)
+				writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
+
+				return
+			}
+
+			username, ok := token.Claims.(jwt.MapClaims)["sub"].(string)
 			if !ok {
 				writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
 
@@ -21,14 +36,7 @@ func Auth(provider *security.UserProvider, expectedScopes []security.Scope) mux.
 			}
 
 			user := provider.Get(username)
-
 			if user == nil {
-				writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
-
-				return
-			}
-
-			if !security.VerifyPassword(user.HashedPassword(), []byte(password)) {
 				writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
 
 				return

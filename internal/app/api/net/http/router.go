@@ -5,6 +5,7 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/api"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/graphql"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/api/system/v1"
+	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/handler/auth"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/middleware"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/response"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
@@ -21,6 +22,8 @@ func NewRouter(
 	logging *middleware.Logging,
 	recovery *middleware.Recovery,
 	provider *security.UserProvider,
+	generator *security.TokenGenerator,
+	extractor *security.TokenExtractor,
 	pool beanstalk.Pool,
 ) *mux.Router {
 	router := mux.NewRouter()
@@ -33,12 +36,14 @@ func NewRouter(
 		cors.Middleware,
 	)
 
-	registerAPIRoutes(router, provider, pool)
+	router.Methods(http.MethodPost).Path("/auth/token").Handler(auth.Token(provider, generator))
+
+	registerAPIRoutes(router, provider, extractor, pool)
 
 	return router
 }
 
-func registerAPIRoutes(router *mux.Router, provider *security.UserProvider, pool beanstalk.Pool) {
+func registerAPIRoutes(router *mux.Router, provider *security.UserProvider, extractor *security.TokenExtractor, pool beanstalk.Pool) {
 	sr := router.PathPrefix("/api").Subrouter()
 
 	sr.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -49,14 +54,14 @@ func registerAPIRoutes(router *mux.Router, provider *security.UserProvider, pool
 		writer.JSON(w, http.StatusMethodNotAllowed, response.MethodNotAllowed())
 	})
 
-	registerSystemV1Routes(sr, provider, pool)
+	registerSystemV1Routes(sr, provider, extractor, pool)
 
-	registerGraphQLRoutes(sr, provider, pool)
+	registerGraphQLRoutes(sr, provider, extractor, pool)
 }
 
-func registerSystemV1Routes(router *mux.Router, provider *security.UserProvider, pool beanstalk.Pool) {
+func registerSystemV1Routes(router *mux.Router, provider *security.UserProvider, extractor *security.TokenExtractor, pool beanstalk.Pool) {
 	h := func(scopes []security.Scope, handler beanstalk.Handler) http.Handler {
-		return middleware.Auth(provider, scopes).Middleware(beanstalk.NewHTTPHandlerAdapter(pool, handler))
+		return middleware.Auth(provider, extractor, scopes).Middleware(beanstalk.NewHTTPHandlerAdapter(pool, handler))
 	}
 
 	sr := router.PathPrefix("/system/v1").Subrouter()
@@ -77,11 +82,11 @@ func registerSystemV1Routes(router *mux.Router, provider *security.UserProvider,
 	})))))
 }
 
-func registerGraphQLRoutes(router *mux.Router, provider *security.UserProvider, pool beanstalk.Pool) {
+func registerGraphQLRoutes(router *mux.Router, provider *security.UserProvider, extractor *security.TokenExtractor, pool beanstalk.Pool) {
 	sr := router.PathPrefix("/graphql").Subrouter()
 
 	sr.
 		Methods(http.MethodOptions, http.MethodGet, http.MethodPost).
 		Path("").
-		Handler(middleware.Auth(provider, []security.Scope{}).Middleware(graphql.Handler(pool)))
+		Handler(middleware.Auth(provider, extractor, []security.Scope{}).Middleware(graphql.Handler(pool)))
 }

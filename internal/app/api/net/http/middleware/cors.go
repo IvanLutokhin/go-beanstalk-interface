@@ -61,7 +61,7 @@ func NewCors(config *config.Config) *Cors {
 	// Headers
 	allowedHeaders := config.Http.Cors.AllowedHeaders
 	if len(allowedHeaders) == 0 {
-		allowedHeaders = []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"}
+		allowedHeaders = []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With", "X-Auth-Token"}
 	}
 
 	for _, allowedHeader := range allowedHeaders {
