@@ -6,23 +6,28 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/net/http/writer"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v4/request"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
-func Auth(provider *security.UserProvider, extractor *security.TokenExtractor, expectedScopes []security.Scope) mux.MiddlewareFunc {
+func Auth(provider *security.UserProvider, manager *security.TokenManager, expectedScopes []security.Scope) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			tokenString := r.Header.Get("X-Auth-Token")
-			if len(tokenString) == 0 {
-				writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
+			tokenString, err := request.AuthorizationHeaderExtractor.ExtractToken(r)
+			if err != nil {
+				cookie, err := r.Cookie("access_token")
+				if err != nil {
+					writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
 
-				return
+					return
+				}
+
+				tokenString = cookie.Value
 			}
 
-			token, err := extractor.Extract(tokenString)
+			token, err := manager.Extract(tokenString)
 			if err != nil {
-				fmt.Println(err)
 				writer.JSON(w, http.StatusUnauthorized, response.Unauthorized())
 
 				return

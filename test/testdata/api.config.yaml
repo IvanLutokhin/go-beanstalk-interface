@@ -34,7 +34,7 @@ http:
   cors:
     allowed_origins: ["*"]
     allowed_methods: ["HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"]
-    allowed_headers: ["Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With", "X-Auth-Token"]
+    allowed_headers: ["Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"]
     allow_credentials: true
 
 security:
