@@ -21,7 +21,12 @@
       "post": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -54,7 +59,12 @@
       "get": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -93,7 +103,12 @@
       "post": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -139,7 +154,12 @@
       "post": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -175,7 +195,12 @@
       "post": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -211,7 +236,12 @@
       "post": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -257,7 +287,12 @@
       "get": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -293,7 +328,12 @@
       "get": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -314,7 +354,12 @@
       "get": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -335,7 +380,12 @@
       "get": {
         "security": [
           {
-            "key": [
+            "bearer": [
+              "[]"
+            ]
+          },
+          {
+            "cookie": [
               "[]"
             ]
           }
@@ -1137,10 +1187,15 @@
     }
   },
   "securityDefinitions": {
-    "key": {
+    "bearer": {
       "type": "apiKey",
-      "name": "x-auth-token",
+      "name": "authorization",
       "in": "header"
+    },
+    "cookie": {
+      "type": "apiKey",
+      "name": "access_token",
+      "in": "cookie"
     }
   }
 }

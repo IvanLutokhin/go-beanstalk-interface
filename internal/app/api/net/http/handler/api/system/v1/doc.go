@@ -15,10 +15,14 @@
 // - application/json
 //
 // SecurityDefinitions:
-//    key:
+//    bearer:
 //       type: apiKey
 //       in: header
-//       name: x-auth-token
+//       name: authorization
+//    cookie:
+//       type: apiKey
+//       in: cookie
+//       name: access_token
 //
 // swagger:meta
 package v1

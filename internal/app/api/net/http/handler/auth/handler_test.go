@@ -15,6 +15,13 @@ import (
 )
 
 func TestToken(t *testing.T) {
+	c := &config.Config{
+		Security: config.SecurityConfig{
+			Secret:   "test",
+			TokenTTL: time.Second,
+		},
+	}
+
 	provider := security.NewUserProvider()
 	provider.Set("test", security.NewUser(
 		"test",
@@ -26,12 +33,7 @@ func TestToken(t *testing.T) {
 		},
 	))
 
-	generator := security.NewTokenGenerator(&config.Config{
-		Security: config.SecurityConfig{
-			Secret:   "test",
-			TokenTTL: time.Second,
-		},
-	})
+	manager := security.NewTokenManager(c)
 
 	t.Run("unknown user", func(t *testing.T) {
 		recorder := httptest.NewRecorder()
@@ -43,7 +45,7 @@ func TestToken(t *testing.T) {
 
 		request.SetBasicAuth("unknown", "unknown")
 
-		auth.Token(provider, generator).ServeHTTP(recorder, request)
+		auth.Token(c, provider, manager).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusForbidden, recorder.Code)
 	})
@@ -58,7 +60,7 @@ func TestToken(t *testing.T) {
 
 		request.SetBasicAuth("test", "test")
 
-		auth.Token(provider, generator).ServeHTTP(recorder, request)
+		auth.Token(c, provider, manager).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusForbidden, recorder.Code)
 	})
@@ -73,14 +75,14 @@ func TestToken(t *testing.T) {
 
 		request.SetBasicAuth("test", "password")
 
-		auth.Token(provider, generator).ServeHTTP(recorder, request)
+		auth.Token(c, provider, manager).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusOK, recorder.Code)
 
 		var r response.Response
 		require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &r))
 
-		token, ok := r.Data.(map[string]interface{})["token"].(string)
+		token, ok := r.Data.(map[string]interface{})["access_token"].(string)
 		require.True(t, ok)
 		require.NotNil(t, token)
 	})
@@ -95,15 +97,42 @@ func TestToken(t *testing.T) {
 
 		request.Header.Set("Content-Type", "application/json")
 
-		auth.Token(provider, generator).ServeHTTP(recorder, request)
+		auth.Token(c, provider, manager).ServeHTTP(recorder, request)
 
 		require.Equal(t, http.StatusOK, recorder.Code)
 
 		var r response.Response
 		require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &r))
 
-		token, ok := r.Data.(map[string]interface{})["token"].(string)
+		token, ok := r.Data.(map[string]interface{})["access_token"].(string)
 		require.True(t, ok)
 		require.NotNil(t, token)
 	})
+}
+
+func TestLogout(t *testing.T) {
+	recorder := httptest.NewRecorder()
+
+	request, err := http.NewRequest(http.MethodPost, "/auth/token", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	auth.Logout().ServeHTTP(recorder, request)
+
+	for _, c := range recorder.Result().Cookies() {
+		switch c.Name {
+		case "access_token":
+			require.Equal(t, -1, c.MaxAge)
+
+			break
+
+		case "logged_in":
+			require.Equal(t, -1, c.MaxAge)
+
+			break
+		}
+	}
+
+	require.Equal(t, http.StatusOK, recorder.Code)
 }
