@@ -1,49 +1,18 @@
 package middleware
 
 import (
-	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/config"
 	"net/http"
-	"regexp"
 	"strings"
 )
 
 type Cors struct {
-	AllowedOrigins   []*regexp.Regexp
-	AllowedMethods   []string
-	AllowedHeaders   []string
-	AllowCredentials bool
+	AllowedMethods []string
+	AllowedHeaders []string
 }
 
-func NewCors(config *config.Config) *Cors {
-	c := &Cors{
-		AllowCredentials: config.Http.Cors.AllowCredentials,
-	}
-
-	// Origins
-	allowedOrigins := config.Http.Cors.AllowedOrigins
-	if len(allowedOrigins) == 0 {
-		allowedOrigins = []string{"*"}
-	}
-
-	for _, allowedOrigin := range allowedOrigins {
-		normalizedOrigin := strings.ToLower(allowedOrigin)
-
-		pattern := regexp.QuoteMeta(normalizedOrigin)
-		pattern = strings.Replace(pattern, "\\*", ".*", -1)
-		pattern = strings.Replace(pattern, "\\?", ".", -1)
-
-		re, err := regexp.Compile(pattern)
-		if err != nil {
-			continue
-		}
-
-		c.AllowedOrigins = append(c.AllowedOrigins, re)
-	}
-
-	// Methods
-	allowedMethods := config.Http.Cors.AllowedMethods
-	if len(allowedMethods) == 0 {
-		allowedMethods = []string{
+func NewCors() *Cors {
+	return &Cors{
+		AllowedMethods: []string{
 			http.MethodHead,
 			http.MethodOptions,
 			http.MethodGet,
@@ -51,47 +20,41 @@ func NewCors(config *config.Config) *Cors {
 			http.MethodPut,
 			http.MethodPatch,
 			http.MethodDelete,
-		}
+		},
+		AllowedHeaders: []string{
+			"Accept",
+			"Authorization",
+			"Content-Type",
+			"Origin",
+			"X-Requested-With",
+		},
 	}
-
-	for _, allowedMethod := range allowedMethods {
-		c.AllowedMethods = append(c.AllowedMethods, strings.ToUpper(allowedMethod))
-	}
-
-	// Headers
-	allowedHeaders := config.Http.Cors.AllowedHeaders
-	if len(allowedHeaders) == 0 {
-		allowedHeaders = []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"}
-	}
-
-	for _, allowedHeader := range allowedHeaders {
-		c.AllowedHeaders = append(c.AllowedHeaders, http.CanonicalHeaderKey(allowedHeader))
-	}
-
-	return c
 }
 
 func (m *Cors) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isPreFlightRequest(r) {
-			m.handlePreFlightRequest(w, r)
+		if isPreflightRequest(r) {
+			m.handlePreflightRequest(w, r)
+		} else {
+			m.handleRequest(w, r)
 
-			return
+			next.ServeHTTP(w, r)
 		}
-
-		m.handleRequest(w, r)
-
-		next.ServeHTTP(w, r)
 	})
 }
 
-func (m *Cors) handlePreFlightRequest(w http.ResponseWriter, r *http.Request) {
+func isPreflightRequest(r *http.Request) bool {
+	return r.Method == http.MethodOptions &&
+		(r.Header.Get("Access-Control-Request-Method") != "" || r.Header.Get("Access-Control-Request-Headers") != "")
+}
+
+func (m *Cors) handlePreflightRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Vary", "Origin")
 	w.Header().Add("Vary", "Access-Control-Request-Method")
 	w.Header().Add("Vary", "Access-Control-Request-Headers")
 
 	origin := r.Header.Get("Origin")
-	if origin == "" || !m.isAllowedOrigin(origin) {
+	if origin == "" {
 		return
 	}
 
@@ -101,10 +64,6 @@ func (m *Cors) handlePreFlightRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	headers := strings.Split(r.Header.Get("Access-Control-Request-Headers"), ",")
-	for i := range headers {
-		headers[i] = strings.TrimSpace(headers[i])
-	}
-
 	if !m.isAllowedHeaders(headers) {
 		return
 	}
@@ -112,10 +71,7 @@ func (m *Cors) handlePreFlightRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", origin)
 	w.Header().Set("Access-Control-Allow-Methods", method)
 	w.Header().Set("Access-Control-Allow-Headers", strings.Join(headers, ","))
-
-	if m.AllowCredentials {
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-	}
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -124,27 +80,12 @@ func (m *Cors) handleRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Vary", "Origin")
 
 	origin := r.Header.Get("Origin")
-	if origin == "" || !m.isAllowedOrigin(origin) {
+	if origin == "" {
 		return
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", origin)
-
-	if m.AllowCredentials {
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-	}
-}
-
-func (m *Cors) isAllowedOrigin(origin string) bool {
-	normalizedOrigin := strings.ToLower(origin)
-
-	for _, allowedOrigin := range m.AllowedOrigins {
-		if match := allowedOrigin.MatchString(normalizedOrigin); match {
-			return true
-		}
-	}
-
-	return false
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 }
 
 func (m *Cors) isAllowedMethod(method string) bool {
@@ -161,7 +102,7 @@ func (m *Cors) isAllowedMethod(method string) bool {
 
 func (m *Cors) isAllowedHeaders(headers []string) bool {
 	for _, header := range headers {
-		normalizedHeader := http.CanonicalHeaderKey(header)
+		normalizedHeader := http.CanonicalHeaderKey(strings.TrimSpace(header))
 
 		found := false
 		for _, allowedHeader := range m.AllowedHeaders {
@@ -178,9 +119,4 @@ func (m *Cors) isAllowedHeaders(headers []string) bool {
 	}
 
 	return true
-}
-
-func isPreFlightRequest(r *http.Request) bool {
-	return r.Method == http.MethodOptions &&
-		(r.Header.Get("Access-Control-Request-Method") != "" || r.Header.Get("Access-Control-Request-Headers") != "")
 }
