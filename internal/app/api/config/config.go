@@ -58,14 +58,6 @@ type HttpConfig struct {
 	ReadTimeout     time.Duration `yaml:"read_timeout"`
 	WriteTimeout    time.Duration `yaml:"write_timeout"`
 	IdleTimeout     time.Duration `yaml:"idle_timeout"`
-	Cors            CorsConfig    `yaml:"cors"`
-}
-
-type CorsConfig struct {
-	AllowedOrigins   []string `yaml:"allowed_origins"`
-	AllowedMethods   []string `yaml:"allowed_methods"`
-	AllowedHeaders   []string `yaml:"allowed_headers"`
-	AllowCredentials bool     `yaml:"allow_credentials"`
 }
 
 type SecurityConfig struct {
@@ -152,12 +144,6 @@ func Default() *Config {
 			ReadTimeout:     30 * time.Second,
 			WriteTimeout:    30 * time.Second,
 			IdleTimeout:     60 * time.Second,
-			Cors: CorsConfig{
-				AllowedOrigins:   []string{"*"},
-				AllowedMethods:   []string{"HEAD", "OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"},
-				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Origin", "X-Requested-With"},
-				AllowCredentials: true,
-			},
 		},
 		Security: SecurityConfig{
 			Secret:     env.MustGetString("BI_SECURITY_SECRET", "secret"),
