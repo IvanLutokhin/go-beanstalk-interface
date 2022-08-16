@@ -10,7 +10,17 @@ type PutCommandResponse struct {
 	ID   int    `json:"id" yaml:"id"`
 }
 
+type DeleteJobsCommandResponse struct {
+	Tube  string `json:"tube" yaml:"tube"`
+	Count int    `json:"count" yaml:"count"`
+}
+
 type KickCommandResponse struct {
+	Tube  string `json:"tube" yaml:"tube"`
+	Count int    `json:"count" yaml:"count"`
+}
+
+type KickJobsCommandResponse struct {
 	Tube  string `json:"tube" yaml:"tube"`
 	Count int    `json:"count" yaml:"count"`
 }

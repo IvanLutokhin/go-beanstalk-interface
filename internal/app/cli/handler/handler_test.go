@@ -118,106 +118,52 @@ func TestHandler_Delete(t *testing.T) {
 	})
 }
 
-func TestHandler_Release(t *testing.T) {
-	t.Run("empty argument", func(t *testing.T) {
-		client := &mock.Client{}
-		client.On("Close", mock.Anything).Return(nil)
+func TestHandler_DeleteJobs(t *testing.T) {
+	client := &mock.Client{}
+	client.On("Use", "default").Return("default", nil)
+	client.On("PeekBuried").Times(5).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+	client.On("PeekBuried").Return(nil, beanstalk.ErrNotFound)
+	client.On("Delete", 1).Return(nil)
+	client.On("Close", mock.Anything).Return(nil)
 
-		h := &handler.Handler{
-			Client: client,
-		}
+	h := &handler.Handler{
+		Client: client,
+	}
 
-		flagSet := flag.NewFlagSet("test", 0)
-
-		ctx := cli.NewContext(nil, flagSet, nil)
-
-		require.Error(t, h.Release(ctx))
-	})
-
-	t.Run("invalid argument", func(t *testing.T) {
-		client := &mock.Client{}
-		client.On("Close", mock.Anything).Return(nil)
-
-		h := &handler.Handler{
-			Client: client,
-		}
+	t.Run("with limit", func(t *testing.T) {
+		w := new(bytes.Buffer)
 
 		flagSet := flag.NewFlagSet("test", 0)
-		flagSet.Parse([]string{"test"})
+		flagSet.String("tube", "default", "")
+		flagSet.Int("count", 3, "")
+		flagSet.String("format", "json", "")
 
-		ctx := cli.NewContext(nil, flagSet, nil)
+		ctx := cli.NewContext(&cli.App{Writer: w}, flagSet, nil)
 
-		require.Error(t, h.Release(ctx))
-	})
+		require.NoError(t, h.DeleteJobs(ctx))
 
-	t.Run("success", func(t *testing.T) {
-		client := &mock.Client{}
-		client.On("Release", 1, uint32(0), 5*time.Second).Return(nil)
-		client.On("Close", mock.Anything).Return(nil)
-
-		h := &handler.Handler{
-			Client: client,
-		}
-
-		flagSet := flag.NewFlagSet("test", 0)
-		flagSet.Int("priority", 0, "")
-		flagSet.Duration("delay", 5*time.Second, "")
-		flagSet.Parse([]string{"1"})
-
-		ctx := cli.NewContext(nil, flagSet, nil)
-
-		require.NoError(t, h.Release(ctx))
-	})
-}
-
-func TestHandler_Bury(t *testing.T) {
-	t.Run("empty argument", func(t *testing.T) {
-		client := &mock.Client{}
-		client.On("Close", mock.Anything).Return(nil)
-
-		h := &handler.Handler{
-			Client: client,
-		}
-
-		flagSet := flag.NewFlagSet("test", 0)
-
-		ctx := cli.NewContext(nil, flagSet, nil)
-
-		require.Error(t, h.Bury(ctx))
-	})
-
-	t.Run("invalid argument", func(t *testing.T) {
-		client := &mock.Client{}
-		client.On("Close", mock.Anything).Return(nil)
-
-		h := &handler.Handler{
-			Client: client,
-		}
-
-		flagSet := flag.NewFlagSet("test", 0)
-		flagSet.Parse([]string{"test"})
-
-		ctx := cli.NewContext(nil, flagSet, nil)
-
-		require.Error(t, h.Bury(ctx))
+		var response handler.DeleteJobsCommandResponse
+		require.NoError(t, yaml.NewDecoder(strings.NewReader(w.String())).Decode(&response))
+		require.Equal(t, "default", response.Tube)
+		require.Equal(t, 3, response.Count)
 	})
 
 	t.Run("success", func(t *testing.T) {
-		client := &mock.Client{}
-		client.On("Bury", 1, uint32(0)).Return(nil)
-		client.On("Close", mock.Anything).Return(nil)
-
-		h := &handler.Handler{
-			Client: client,
-		}
+		w := new(bytes.Buffer)
 
 		flagSet := flag.NewFlagSet("test", 0)
-		flagSet.Int("priority", 0, "")
-		flagSet.Parse([]string{"1"})
+		flagSet.String("tube", "default", "")
+		flagSet.Int("count", 10, "")
+		flagSet.String("format", "json", "")
 
-		ctx := cli.NewContext(nil, flagSet, nil)
+		ctx := cli.NewContext(&cli.App{Writer: w}, flagSet, nil)
 
-		require.NoError(t, h.Bury(ctx))
+		require.NoError(t, h.DeleteJobs(ctx))
+
+		var response handler.DeleteJobsCommandResponse
+		require.NoError(t, yaml.NewDecoder(strings.NewReader(w.String())).Decode(&response))
+		require.Equal(t, "default", response.Tube)
+		require.Equal(t, 2, response.Count)
 	})
 }
 
@@ -466,6 +412,55 @@ func TestHandler_KickJob(t *testing.T) {
 		ctx := cli.NewContext(&cli.App{Writer: w}, flagSet, nil)
 
 		require.NoError(t, h.KickJob(ctx))
+	})
+}
+
+func TestHandler_KickJobs(t *testing.T) {
+	client := &mock.Client{}
+	client.On("Use", "default").Return("default", nil)
+	client.On("PeekBuried").Times(5).Return(&beanstalk.Job{ID: 1, Data: []byte("test")}, nil)
+	client.On("PeekBuried").Return(nil, beanstalk.ErrNotFound)
+	client.On("KickJob", 1).Return(nil)
+	client.On("Close", mock.Anything).Return(nil)
+
+	h := &handler.Handler{
+		Client: client,
+	}
+
+	t.Run("with limit", func(t *testing.T) {
+		w := new(bytes.Buffer)
+
+		flagSet := flag.NewFlagSet("test", 0)
+		flagSet.String("tube", "default", "")
+		flagSet.Int("count", 3, "")
+		flagSet.String("format", "json", "")
+
+		ctx := cli.NewContext(&cli.App{Writer: w}, flagSet, nil)
+
+		require.NoError(t, h.KickJobs(ctx))
+
+		var response handler.KickJobsCommandResponse
+		require.NoError(t, yaml.NewDecoder(strings.NewReader(w.String())).Decode(&response))
+		require.Equal(t, "default", response.Tube)
+		require.Equal(t, 3, response.Count)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		w := new(bytes.Buffer)
+
+		flagSet := flag.NewFlagSet("test", 0)
+		flagSet.String("tube", "default", "")
+		flagSet.Int("count", 10, "")
+		flagSet.String("format", "json", "")
+
+		ctx := cli.NewContext(&cli.App{Writer: w}, flagSet, nil)
+
+		require.NoError(t, h.KickJobs(ctx))
+
+		var response handler.KickJobsCommandResponse
+		require.NoError(t, yaml.NewDecoder(strings.NewReader(w.String())).Decode(&response))
+		require.Equal(t, "default", response.Tube)
+		require.Equal(t, 2, response.Count)
 	})
 }
 

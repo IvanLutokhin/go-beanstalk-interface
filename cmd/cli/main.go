@@ -55,33 +55,24 @@ func main() {
 				Action:    handler.CreateAction((*handler.Handler).Delete),
 			},
 			{
-				Name:      "release",
-				Usage:     "releases job",
-				ArgsUsage: "[job-id]",
-				Action:    handler.CreateAction((*handler.Handler).Release),
+				Name:   "delete-jobs",
+				Usage:  "deletes jobs",
+				Action: handler.CreateAction((*handler.Handler).DeleteJobs),
 				Flags: []cli.Flag{
-					&cli.IntFlag{
-						Name:  "priority",
-						Value: 0,
-						Usage: "the new priority to assign to the job",
+					&cli.StringFlag{
+						Name:  "tube",
+						Value: "default",
+						Usage: "the name of the tube now being used",
 					},
-					&cli.DurationFlag{
-						Name:  "delay",
-						Value: 0,
-						Usage: "the number of seconds to wait before putting the job in the ready queue",
-					},
-				},
-			},
-			{
-				Name:      "bury",
-				Usage:     "buries job",
-				ArgsUsage: "[job-id]",
-				Action:    handler.CreateAction((*handler.Handler).Bury),
-				Flags: []cli.Flag{
 					&cli.IntFlag{
-						Name:  "priority",
-						Value: 0,
-						Usage: "the new priority to assign to the job",
+						Name:  "count",
+						Value: 1,
+						Usage: "the number of jobs actually deleted",
+					},
+					&cli.StringFlag{
+						Name:  "format",
+						Value: "yaml",
+						Usage: "the output format",
 					},
 				},
 			},
@@ -167,6 +158,28 @@ func main() {
 				Usage:     "kicks job",
 				ArgsUsage: "[job-id]",
 				Action:    handler.CreateAction((*handler.Handler).KickJob),
+			},
+			{
+				Name:   "kick-jobs",
+				Usage:  "kicks jobs at tube",
+				Action: handler.CreateAction((*handler.Handler).KickJobs),
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "tube",
+						Value: "default",
+						Usage: "the name of the tube now being used",
+					},
+					&cli.IntFlag{
+						Name:  "count",
+						Value: 1,
+						Usage: "the number of jobs actually kicked",
+					},
+					&cli.StringFlag{
+						Name:  "format",
+						Value: "yaml",
+						Usage: "the output format",
+					},
+				},
 			},
 			{
 				Name:      "stats-job",
