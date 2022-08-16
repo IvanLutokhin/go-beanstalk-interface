@@ -48,6 +48,7 @@ func registerAuthRoutes(router *mux.Router, config *config.Config, provider *sec
 	sr := router.PathPrefix("/auth").Subrouter()
 
 	sr.Methods(http.MethodOptions, http.MethodPost).Path("/token").Handler(auth.Token(config, provider, manager))
+	sr.Methods(http.MethodOptions, http.MethodPost).Path("/login").Handler(auth.Login(config, provider, manager))
 	sr.Methods(http.MethodOptions, http.MethodPost).Path("/logout").Handler(auth.Logout())
 }
 
