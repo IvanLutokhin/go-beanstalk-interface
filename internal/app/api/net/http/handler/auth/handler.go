@@ -51,6 +51,51 @@ func Token(config *config.Config, provider *security.UserProvider, manager *secu
 			panic(err)
 		}
 
+		data := map[string]interface{}{
+			"access_token": token,
+			"token_type":   "bearer",
+			"expires_in":   config.Security.TokenTTL.Seconds(),
+		}
+
+		writer.JSON(w, http.StatusOK, response.Success(data))
+	})
+}
+
+func Login(config *config.Config, provider *security.UserProvider, manager *security.TokenManager) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var request = struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}{}
+
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			panic(err)
+		}
+
+		user := provider.Get(request.Username)
+		if user == nil || !security.VerifyPassword(user.HashedPassword(), []byte(request.Password)) {
+			data := map[string]interface{}{
+				"errors": []string{
+					"invalid credentials",
+				},
+			}
+
+			writer.JSON(w, http.StatusForbidden, response.Forbidden(data))
+
+			return
+		}
+
+		claims := jwt.MapClaims{
+			"iss": r.URL.String(),
+			"sub": request.Username,
+			"exp": time.Now().Add(config.Security.TokenTTL).Unix(),
+		}
+
+		token, err := manager.Sign(claims)
+		if err != nil {
+			panic(err)
+		}
+
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
@@ -70,13 +115,7 @@ func Token(config *config.Config, provider *security.UserProvider, manager *secu
 			SameSite: http.SameSiteLaxMode,
 		})
 
-		data := map[string]interface{}{
-			"access_token": token,
-			"token_type":   "bearer",
-			"expires_in":   config.Security.TokenTTL.Seconds(),
-		}
-
-		writer.JSON(w, http.StatusOK, response.Success(data))
+		writer.JSON(w, http.StatusOK, response.Success(nil))
 	})
 }
 

@@ -110,6 +110,83 @@ func TestToken(t *testing.T) {
 	})
 }
 
+func TestLogin(t *testing.T) {
+	c := &config.Config{
+		Security: config.SecurityConfig{
+			Secret:   "test",
+			TokenTTL: time.Second,
+		},
+	}
+
+	provider := security.NewUserProvider()
+	provider.Set("test", security.NewUser(
+		"test",
+		[]byte("$2a$10$DwPN24dS.AL77MopVjJh/eWjwrvuRUfHLUUFTPDdwAPFLRbEzg1UC"),
+		[]security.Scope{
+			security.ScopeReadServer,
+			security.ScopeReadTubes,
+			security.ScopeReadJobs,
+		},
+	))
+
+	manager := security.NewTokenManager(c)
+
+	t.Run("unknown user", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+
+		request, err := http.NewRequest(http.MethodPost, "/auth/login", strings.NewReader(`{"username": "unknown", "password": "unknown"}`))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		auth.Login(c, provider, manager).ServeHTTP(recorder, request)
+
+		require.Equal(t, http.StatusForbidden, recorder.Code)
+	})
+
+	t.Run("invalid credentials", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+
+		request, err := http.NewRequest(http.MethodPost, "/auth/token", strings.NewReader(`{"username": "test", "password": "test"}`))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		auth.Login(c, provider, manager).ServeHTTP(recorder, request)
+
+		require.Equal(t, http.StatusForbidden, recorder.Code)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+
+		request, err := http.NewRequest(http.MethodPost, "/auth/token", strings.NewReader(`{"username": "test", "password": "password"}`))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		request.Header.Set("Content-Type", "application/json")
+
+		auth.Login(c, provider, manager).ServeHTTP(recorder, request)
+
+		for _, c := range recorder.Result().Cookies() {
+			switch c.Name {
+			case "access_token":
+				require.Equal(t, 1, c.MaxAge)
+
+				break
+
+			case "logged_in":
+				require.Equal(t, 1, c.MaxAge)
+
+				break
+			}
+		}
+
+		require.Equal(t, http.StatusOK, recorder.Code)
+	})
+}
+
 func TestLogout(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
