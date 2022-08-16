@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/cli/printer"
@@ -55,22 +56,46 @@ func (h *Handler) Delete(ctx *cli.Context) error {
 	return h.Client.Delete(jobID)
 }
 
-func (h *Handler) Release(ctx *cli.Context) error {
-	jobID, err := strconv.Atoi(ctx.Args().First())
+func (h *Handler) DeleteJobs(ctx *cli.Context) error {
+	tube, err := h.Client.Use(ctx.String("tube"))
 	if err != nil {
-		return InvalidArgumentError("job-id")
+		return err
 	}
 
-	return h.Client.Release(jobID, uint32(ctx.Int("priority")), ctx.Duration("delay"))
-}
+	count := ctx.Int("count")
 
-func (h *Handler) Bury(ctx *cli.Context) error {
-	jobID, err := strconv.Atoi(ctx.Args().First())
-	if err != nil {
-		return InvalidArgumentError("job-id")
+	response := DeleteJobsCommandResponse{Tube: tube, Count: 0}
+
+	for {
+		peeked, err := h.Client.PeekBuried()
+		if err != nil && !errors.Is(err, beanstalk.ErrNotFound) {
+			if printErr := printer.Print(ctx.String("format"), ctx.App.Writer, response); printErr != nil {
+				return printErr
+			}
+
+			return err
+		}
+
+		if peeked == nil {
+			break
+		}
+
+		if err := h.Client.Delete(peeked.ID); err != nil {
+			if printErr := printer.Print(ctx.String("format"), ctx.App.Writer, response); printErr != nil {
+				return printErr
+			}
+
+			return err
+		}
+
+		response.Count++
+
+		if count <= response.Count {
+			break
+		}
 	}
 
-	return h.Client.Bury(jobID, uint32(ctx.Int("priority")))
+	return printer.Print(ctx.String("format"), ctx.App.Writer, response)
 }
 
 func (h *Handler) Peek(ctx *cli.Context) error {
@@ -155,6 +180,48 @@ func (h *Handler) KickJob(ctx *cli.Context) error {
 	}
 
 	return h.Client.KickJob(jobID)
+}
+
+func (h *Handler) KickJobs(ctx *cli.Context) error {
+	tube, err := h.Client.Use(ctx.String("tube"))
+	if err != nil {
+		return err
+	}
+
+	count := ctx.Int("count")
+
+	response := KickJobsCommandResponse{Tube: tube, Count: 0}
+
+	for {
+		peeked, err := h.Client.PeekBuried()
+		if err != nil && !errors.Is(err, beanstalk.ErrNotFound) {
+			if printErr := printer.Print(ctx.String("format"), ctx.App.Writer, response); printErr != nil {
+				return printErr
+			}
+
+			return err
+		}
+
+		if peeked == nil {
+			break
+		}
+
+		if err := h.Client.KickJob(peeked.ID); err != nil {
+			if printErr := printer.Print(ctx.String("format"), ctx.App.Writer, response); printErr != nil {
+				return printErr
+			}
+
+			return err
+		}
+
+		response.Count++
+
+		if count <= response.Count {
+			break
+		}
+	}
+
+	return printer.Print(ctx.String("format"), ctx.App.Writer, response)
 }
 
 func (h *Handler) StatsJob(ctx *cli.Context) error {
