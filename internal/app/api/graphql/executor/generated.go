@@ -50,10 +50,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	BuryJobPayload struct {
-		ID func(childComplexity int) int
-	}
-
 	CreateJobPayload struct {
 		ID   func(childComplexity int) int
 		Tube func(childComplexity int) int
@@ -61,6 +57,10 @@ type ComplexityRoot struct {
 
 	DeleteJobPayload struct {
 		ID func(childComplexity int) int
+	}
+
+	DeleteJobsPayload struct {
+		Count func(childComplexity int) int
 	}
 
 	Job struct {
@@ -89,16 +89,25 @@ type ComplexityRoot struct {
 		ID func(childComplexity int) int
 	}
 
+	KickJobsPayload struct {
+		Count func(childComplexity int) int
+	}
+
 	Me struct {
 		User func(childComplexity int) int
 	}
 
 	Mutation struct {
-		BuryJob    func(childComplexity int, input *model.BuryJobInput) int
 		CreateJob  func(childComplexity int, input *model.CreateJobInput) int
 		DeleteJob  func(childComplexity int, input *model.DeleteJobInput) int
+		DeleteJobs func(childComplexity int, input *model.DeleteJobsInput) int
 		KickJob    func(childComplexity int, input *model.KickJobInput) int
-		ReleaseJob func(childComplexity int, input *model.ReleaseJobInput) int
+		KickJobs   func(childComplexity int, input *model.KickJobsInput) int
+		PauseTube  func(childComplexity int, input *model.PauseTubeInput) int
+	}
+
+	PauseTubePayload struct {
+		Tube func(childComplexity int) int
 	}
 
 	Query struct {
@@ -107,10 +116,6 @@ type ComplexityRoot struct {
 		Server func(childComplexity int) int
 		Tube   func(childComplexity int, name string) int
 		Tubes  func(childComplexity int) int
-	}
-
-	ReleaseJobPayload struct {
-		ID func(childComplexity int) int
 	}
 
 	Server struct {
@@ -213,10 +218,11 @@ type JobResolver interface {
 }
 type MutationResolver interface {
 	CreateJob(ctx context.Context, input *model.CreateJobInput) (*model.CreateJobPayload, error)
-	BuryJob(ctx context.Context, input *model.BuryJobInput) (*model.BuryJobPayload, error)
 	DeleteJob(ctx context.Context, input *model.DeleteJobInput) (*model.DeleteJobPayload, error)
+	DeleteJobs(ctx context.Context, input *model.DeleteJobsInput) (*model.DeleteJobsPayload, error)
 	KickJob(ctx context.Context, input *model.KickJobInput) (*model.KickJobPayload, error)
-	ReleaseJob(ctx context.Context, input *model.ReleaseJobInput) (*model.ReleaseJobPayload, error)
+	KickJobs(ctx context.Context, input *model.KickJobsInput) (*model.KickJobsPayload, error)
+	PauseTube(ctx context.Context, input *model.PauseTubeInput) (*model.PauseTubePayload, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*model.Me, error)
@@ -253,13 +259,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "BuryJobPayload.id":
-		if e.complexity.BuryJobPayload.ID == nil {
-			break
-		}
-
-		return e.complexity.BuryJobPayload.ID(childComplexity), true
-
 	case "CreateJobPayload.id":
 		if e.complexity.CreateJobPayload.ID == nil {
 			break
@@ -280,6 +279,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.DeleteJobPayload.ID(childComplexity), true
+
+	case "DeleteJobsPayload.count":
+		if e.complexity.DeleteJobsPayload.Count == nil {
+			break
+		}
+
+		return e.complexity.DeleteJobsPayload.Count(childComplexity), true
 
 	case "Job.data":
 		if e.complexity.Job.Data == nil {
@@ -400,24 +406,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.KickJobPayload.ID(childComplexity), true
 
+	case "KickJobsPayload.count":
+		if e.complexity.KickJobsPayload.Count == nil {
+			break
+		}
+
+		return e.complexity.KickJobsPayload.Count(childComplexity), true
+
 	case "Me.user":
 		if e.complexity.Me.User == nil {
 			break
 		}
 
 		return e.complexity.Me.User(childComplexity), true
-
-	case "Mutation.buryJob":
-		if e.complexity.Mutation.BuryJob == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_buryJob_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.BuryJob(childComplexity, args["input"].(*model.BuryJobInput)), true
 
 	case "Mutation.createJob":
 		if e.complexity.Mutation.CreateJob == nil {
@@ -443,6 +444,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteJob(childComplexity, args["input"].(*model.DeleteJobInput)), true
 
+	case "Mutation.deleteJobs":
+		if e.complexity.Mutation.DeleteJobs == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteJobs_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteJobs(childComplexity, args["input"].(*model.DeleteJobsInput)), true
+
 	case "Mutation.kickJob":
 		if e.complexity.Mutation.KickJob == nil {
 			break
@@ -455,17 +468,36 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.KickJob(childComplexity, args["input"].(*model.KickJobInput)), true
 
-	case "Mutation.releaseJob":
-		if e.complexity.Mutation.ReleaseJob == nil {
+	case "Mutation.kickJobs":
+		if e.complexity.Mutation.KickJobs == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_releaseJob_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_kickJobs_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ReleaseJob(childComplexity, args["input"].(*model.ReleaseJobInput)), true
+		return e.complexity.Mutation.KickJobs(childComplexity, args["input"].(*model.KickJobsInput)), true
+
+	case "Mutation.pauseTube":
+		if e.complexity.Mutation.PauseTube == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_pauseTube_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.PauseTube(childComplexity, args["input"].(*model.PauseTubeInput)), true
+
+	case "PauseTubePayload.tube":
+		if e.complexity.PauseTubePayload.Tube == nil {
+			break
+		}
+
+		return e.complexity.PauseTubePayload.Tube(childComplexity), true
 
 	case "Query.job":
 		if e.complexity.Query.Job == nil {
@@ -511,13 +543,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Tubes(childComplexity), true
-
-	case "ReleaseJobPayload.id":
-		if e.complexity.ReleaseJobPayload.ID == nil {
-			break
-		}
-
-		return e.complexity.ReleaseJobPayload.ID(childComplexity), true
 
 	case "Server.stats":
 		if e.complexity.Server.Stats == nil {
@@ -1038,11 +1063,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputBuryJobInput,
 		ec.unmarshalInputCreateJobInput,
 		ec.unmarshalInputDeleteJobInput,
+		ec.unmarshalInputDeleteJobsInput,
 		ec.unmarshalInputKickJobInput,
-		ec.unmarshalInputReleaseJobInput,
+		ec.unmarshalInputKickJobsInput,
+		ec.unmarshalInputPauseTubeInput,
 	)
 	first := true
 
@@ -1368,10 +1394,11 @@ enum Scope {
 `, BuiltIn: false},
 	{Name: "../../../../../api/graphql/mutation.graphql", Input: `extend type Mutation {
     createJob(input: CreateJobInput): CreateJobPayload!
-    buryJob(input: BuryJobInput): BuryJobPayload!
     deleteJob(input: DeleteJobInput): DeleteJobPayload!
+    deleteJobs(input: DeleteJobsInput): DeleteJobsPayload!
     kickJob(input: KickJobInput): KickJobPayload!
-    releaseJob(input: ReleaseJobInput): ReleaseJobPayload!
+    kickJobs(input: KickJobsInput): KickJobsPayload!
+    pauseTube(input: PauseTubeInput): PauseTubePayload!
 }
 
 input CreateJobInput {
@@ -1387,21 +1414,21 @@ type CreateJobPayload {
     id: Int!
 }
 
-input BuryJobInput {
-    id: Int!
-    priority: Int!
-}
-
-type BuryJobPayload {
-    id: Int!
-}
-
 input DeleteJobInput {
     id: Int!
 }
 
 type DeleteJobPayload {
     id: Int!
+}
+
+input DeleteJobsInput {
+    tube: String!
+    count: Int
+}
+
+type DeleteJobsPayload {
+    count: Int!
 }
 
 input KickJobInput {
@@ -1412,14 +1439,22 @@ type KickJobPayload {
     id: Int!
 }
 
-input ReleaseJobInput {
-    id: Int!
-    priority: Int!
+input KickJobsInput {
+    tube: String!
+    count: Int
+}
+
+type KickJobsPayload {
+    count: Int!
+}
+
+input PauseTubeInput {
+    tube: String!
     delay: Int!
 }
 
-type ReleaseJobPayload {
-    id: Int!
+type PauseTubePayload {
+    tube: String!
 }
 `, BuiltIn: false},
 	{Name: "../../../../../api/graphql/query.graphql", Input: `extend type Query {
@@ -1466,21 +1501,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_buryJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *model.BuryJobInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOBuryJobInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐBuryJobInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_createJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1511,6 +1531,21 @@ func (ec *executionContext) field_Mutation_deleteJob_args(ctx context.Context, r
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteJobs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.DeleteJobsInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalODeleteJobsInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐDeleteJobsInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_kickJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1526,13 +1561,28 @@ func (ec *executionContext) field_Mutation_kickJob_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_releaseJob_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_kickJobs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.ReleaseJobInput
+	var arg0 *model.KickJobsInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalOReleaseJobInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐReleaseJobInput(ctx, tmp)
+		arg0, err = ec.unmarshalOKickJobsInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐKickJobsInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_pauseTube_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.PauseTubeInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOPauseTubeInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐPauseTubeInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1623,50 +1673,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _BuryJobPayload_id(ctx context.Context, field graphql.CollectedField, obj *model.BuryJobPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BuryJobPayload_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BuryJobPayload_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BuryJobPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
 
 func (ec *executionContext) _CreateJobPayload_tube(ctx context.Context, field graphql.CollectedField, obj *model.CreateJobPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CreateJobPayload_tube(ctx, field)
@@ -1790,6 +1796,50 @@ func (ec *executionContext) _DeleteJobPayload_id(ctx context.Context, field grap
 func (ec *executionContext) fieldContext_DeleteJobPayload_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteJobPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteJobsPayload_count(ctx context.Context, field graphql.CollectedField, obj *model.DeleteJobsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DeleteJobsPayload_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DeleteJobsPayload_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteJobsPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2576,6 +2626,50 @@ func (ec *executionContext) fieldContext_KickJobPayload_id(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _KickJobsPayload_count(ctx context.Context, field graphql.CollectedField, obj *model.KickJobsPayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KickJobsPayload_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_KickJobsPayload_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "KickJobsPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Me_user(ctx context.Context, field graphql.CollectedField, obj *model.Me) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Me_user(ctx, field)
 	if err != nil {
@@ -2687,65 +2781,6 @@ func (ec *executionContext) fieldContext_Mutation_createJob(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_buryJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_buryJob(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().BuryJob(rctx, fc.Args["input"].(*model.BuryJobInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.BuryJobPayload)
-	fc.Result = res
-	return ec.marshalNBuryJobPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐBuryJobPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_buryJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_BuryJobPayload_id(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BuryJobPayload", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_buryJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_deleteJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_deleteJob(ctx, field)
 	if err != nil {
@@ -2799,6 +2834,65 @@ func (ec *executionContext) fieldContext_Mutation_deleteJob(ctx context.Context,
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteJobs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteJobs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteJobs(rctx, fc.Args["input"].(*model.DeleteJobsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.DeleteJobsPayload)
+	fc.Result = res
+	return ec.marshalNDeleteJobsPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐDeleteJobsPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteJobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "count":
+				return ec.fieldContext_DeleteJobsPayload_count(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteJobsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteJobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -2864,8 +2958,8 @@ func (ec *executionContext) fieldContext_Mutation_kickJob(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_releaseJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_releaseJob(ctx, field)
+func (ec *executionContext) _Mutation_kickJobs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_kickJobs(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2878,7 +2972,7 @@ func (ec *executionContext) _Mutation_releaseJob(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ReleaseJob(rctx, fc.Args["input"].(*model.ReleaseJobInput))
+		return ec.resolvers.Mutation().KickJobs(rctx, fc.Args["input"].(*model.KickJobsInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2890,12 +2984,12 @@ func (ec *executionContext) _Mutation_releaseJob(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ReleaseJobPayload)
+	res := resTmp.(*model.KickJobsPayload)
 	fc.Result = res
-	return ec.marshalNReleaseJobPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐReleaseJobPayload(ctx, field.Selections, res)
+	return ec.marshalNKickJobsPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐKickJobsPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_releaseJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_kickJobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2903,10 +2997,10 @@ func (ec *executionContext) fieldContext_Mutation_releaseJob(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ReleaseJobPayload_id(ctx, field)
+			case "count":
+				return ec.fieldContext_KickJobsPayload_count(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ReleaseJobPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KickJobsPayload", field.Name)
 		},
 	}
 	defer func() {
@@ -2916,9 +3010,112 @@ func (ec *executionContext) fieldContext_Mutation_releaseJob(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_releaseJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_kickJobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_pauseTube(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_pauseTube(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().PauseTube(rctx, fc.Args["input"].(*model.PauseTubeInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PauseTubePayload)
+	fc.Result = res
+	return ec.marshalNPauseTubePayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐPauseTubePayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_pauseTube(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "tube":
+				return ec.fieldContext_PauseTubePayload_tube(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PauseTubePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_pauseTube_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PauseTubePayload_tube(ctx context.Context, field graphql.CollectedField, obj *model.PauseTubePayload) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PauseTubePayload_tube(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Tube, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PauseTubePayload_tube(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PauseTubePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -3318,50 +3515,6 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ReleaseJobPayload_id(ctx context.Context, field graphql.CollectedField, obj *model.ReleaseJobPayload) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ReleaseJobPayload_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ReleaseJobPayload_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ReleaseJobPayload",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8513,37 +8666,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputBuryJobInput(ctx context.Context, obj interface{}) (model.BuryJobInput, error) {
-	var it model.BuryJobInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	for k, v := range asMap {
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "priority":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("priority"))
-			it.Priority, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputCreateJobInput(ctx context.Context, obj interface{}) (model.CreateJobInput, error) {
 	var it model.CreateJobInput
 	asMap := map[string]interface{}{}
@@ -8622,6 +8744,37 @@ func (ec *executionContext) unmarshalInputDeleteJobInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteJobsInput(ctx context.Context, obj interface{}) (model.DeleteJobsInput, error) {
+	var it model.DeleteJobsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "tube":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tube"))
+			it.Tube, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "count":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("count"))
+			it.Count, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputKickJobInput(ctx context.Context, obj interface{}) (model.KickJobInput, error) {
 	var it model.KickJobInput
 	asMap := map[string]interface{}{}
@@ -8645,8 +8798,8 @@ func (ec *executionContext) unmarshalInputKickJobInput(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputReleaseJobInput(ctx context.Context, obj interface{}) (model.ReleaseJobInput, error) {
-	var it model.ReleaseJobInput
+func (ec *executionContext) unmarshalInputKickJobsInput(ctx context.Context, obj interface{}) (model.KickJobsInput, error) {
+	var it model.KickJobsInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -8654,19 +8807,42 @@ func (ec *executionContext) unmarshalInputReleaseJobInput(ctx context.Context, o
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
+		case "tube":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tube"))
+			it.Tube, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "priority":
+		case "count":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("priority"))
-			it.Priority, err = ec.unmarshalNInt2int(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("count"))
+			it.Count, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPauseTubeInput(ctx context.Context, obj interface{}) (model.PauseTubeInput, error) {
+	var it model.PauseTubeInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "tube":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tube"))
+			it.Tube, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8691,34 +8867,6 @@ func (ec *executionContext) unmarshalInputReleaseJobInput(ctx context.Context, o
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
-
-var buryJobPayloadImplementors = []string{"BuryJobPayload"}
-
-func (ec *executionContext) _BuryJobPayload(ctx context.Context, sel ast.SelectionSet, obj *model.BuryJobPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, buryJobPayloadImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("BuryJobPayload")
-		case "id":
-
-			out.Values[i] = ec._BuryJobPayload_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
 
 var createJobPayloadImplementors = []string{"CreateJobPayload"}
 
@@ -8768,6 +8916,34 @@ func (ec *executionContext) _DeleteJobPayload(ctx context.Context, sel ast.Selec
 		case "id":
 
 			out.Values[i] = ec._DeleteJobPayload_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var deleteJobsPayloadImplementors = []string{"DeleteJobsPayload"}
+
+func (ec *executionContext) _DeleteJobsPayload(ctx context.Context, sel ast.SelectionSet, obj *model.DeleteJobsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteJobsPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteJobsPayload")
+		case "count":
+
+			out.Values[i] = ec._DeleteJobsPayload_count(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -8978,6 +9154,34 @@ func (ec *executionContext) _KickJobPayload(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var kickJobsPayloadImplementors = []string{"KickJobsPayload"}
+
+func (ec *executionContext) _KickJobsPayload(ctx context.Context, sel ast.SelectionSet, obj *model.KickJobsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, kickJobsPayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("KickJobsPayload")
+		case "count":
+
+			out.Values[i] = ec._KickJobsPayload_count(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var meImplementors = []string{"Me"}
 
 func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *model.Me) graphql.Marshaler {
@@ -9034,19 +9238,19 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "buryJob":
+		case "deleteJob":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_buryJob(ctx, field)
+				return ec._Mutation_deleteJob(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "deleteJob":
+		case "deleteJobs":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteJob(ctx, field)
+				return ec._Mutation_deleteJobs(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -9061,11 +9265,48 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "releaseJob":
+		case "kickJobs":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_releaseJob(ctx, field)
+				return ec._Mutation_kickJobs(ctx, field)
 			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "pauseTube":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_pauseTube(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var pauseTubePayloadImplementors = []string{"PauseTubePayload"}
+
+func (ec *executionContext) _PauseTubePayload(ctx context.Context, sel ast.SelectionSet, obj *model.PauseTubePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pauseTubePayloadImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PauseTubePayload")
+		case "tube":
+
+			out.Values[i] = ec._PauseTubePayload_tube(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9224,34 +9465,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec._Query___schema(ctx, field)
 			})
 
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var releaseJobPayloadImplementors = []string{"ReleaseJobPayload"}
-
-func (ec *executionContext) _ReleaseJobPayload(ctx context.Context, sel ast.SelectionSet, obj *model.ReleaseJobPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, releaseJobPayloadImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ReleaseJobPayload")
-		case "id":
-
-			out.Values[i] = ec._ReleaseJobPayload_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10323,20 +10536,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNBuryJobPayload2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐBuryJobPayload(ctx context.Context, sel ast.SelectionSet, v model.BuryJobPayload) graphql.Marshaler {
-	return ec._BuryJobPayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNBuryJobPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐBuryJobPayload(ctx context.Context, sel ast.SelectionSet, v *model.BuryJobPayload) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BuryJobPayload(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNCreateJobPayload2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐCreateJobPayload(ctx context.Context, sel ast.SelectionSet, v model.CreateJobPayload) graphql.Marshaler {
 	return ec._CreateJobPayload(ctx, sel, &v)
 }
@@ -10363,6 +10562,20 @@ func (ec *executionContext) marshalNDeleteJobPayload2ᚖgithubᚗcomᚋIvanLutok
 		return graphql.Null
 	}
 	return ec._DeleteJobPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDeleteJobsPayload2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐDeleteJobsPayload(ctx context.Context, sel ast.SelectionSet, v model.DeleteJobsPayload) graphql.Marshaler {
+	return ec._DeleteJobsPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDeleteJobsPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐDeleteJobsPayload(ctx context.Context, sel ast.SelectionSet, v *model.DeleteJobsPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DeleteJobsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
@@ -10437,6 +10650,20 @@ func (ec *executionContext) marshalNKickJobPayload2ᚖgithubᚗcomᚋIvanLutokhi
 	return ec._KickJobPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNKickJobsPayload2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐKickJobsPayload(ctx context.Context, sel ast.SelectionSet, v model.KickJobsPayload) graphql.Marshaler {
+	return ec._KickJobsPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNKickJobsPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐKickJobsPayload(ctx context.Context, sel ast.SelectionSet, v *model.KickJobsPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._KickJobsPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNMe2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐMe(ctx context.Context, sel ast.SelectionSet, v model.Me) graphql.Marshaler {
 	return ec._Me(ctx, sel, &v)
 }
@@ -10451,18 +10678,18 @@ func (ec *executionContext) marshalNMe2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbea
 	return ec._Me(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNReleaseJobPayload2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐReleaseJobPayload(ctx context.Context, sel ast.SelectionSet, v model.ReleaseJobPayload) graphql.Marshaler {
-	return ec._ReleaseJobPayload(ctx, sel, &v)
+func (ec *executionContext) marshalNPauseTubePayload2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐPauseTubePayload(ctx context.Context, sel ast.SelectionSet, v model.PauseTubePayload) graphql.Marshaler {
+	return ec._PauseTubePayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNReleaseJobPayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐReleaseJobPayload(ctx context.Context, sel ast.SelectionSet, v *model.ReleaseJobPayload) graphql.Marshaler {
+func (ec *executionContext) marshalNPauseTubePayload2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐPauseTubePayload(ctx context.Context, sel ast.SelectionSet, v *model.PauseTubePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ReleaseJobPayload(ctx, sel, v)
+	return ec._PauseTubePayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNScope2githubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐScope(ctx context.Context, v interface{}) (model.Scope, error) {
@@ -10944,14 +11171,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOBuryJobInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐBuryJobInput(ctx context.Context, v interface{}) (*model.BuryJobInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputBuryJobInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalOCreateJobInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐCreateJobInput(ctx context.Context, v interface{}) (*model.CreateJobInput, error) {
 	if v == nil {
 		return nil, nil
@@ -10966,6 +11185,30 @@ func (ec *executionContext) unmarshalODeleteJobInput2ᚖgithubᚗcomᚋIvanLutok
 	}
 	res, err := ec.unmarshalInputDeleteJobInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalODeleteJobsInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐDeleteJobsInput(ctx context.Context, v interface{}) (*model.DeleteJobsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDeleteJobsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOJob2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐJob(ctx context.Context, sel ast.SelectionSet, v *model.Job) graphql.Marshaler {
@@ -10983,11 +11226,19 @@ func (ec *executionContext) unmarshalOKickJobInput2ᚖgithubᚗcomᚋIvanLutokhi
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOReleaseJobInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐReleaseJobInput(ctx context.Context, v interface{}) (*model.ReleaseJobInput, error) {
+func (ec *executionContext) unmarshalOKickJobsInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐKickJobsInput(ctx context.Context, v interface{}) (*model.KickJobsInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputReleaseJobInput(ctx, v)
+	res, err := ec.unmarshalInputKickJobsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOPauseTubeInput2ᚖgithubᚗcomᚋIvanLutokhinᚋgoᚑbeanstalkᚑinterfaceᚋinternalᚋappᚋapiᚋgraphqlᚋmodelᚐPauseTubeInput(ctx context.Context, v interface{}) (*model.PauseTubeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPauseTubeInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

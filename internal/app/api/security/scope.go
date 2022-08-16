@@ -5,6 +5,7 @@ import "strings"
 const (
 	ScopeReadServer = "read:server"
 	ScopeReadTubes  = "read:tubes"
+	ScopeWriteTubes = "write:tubes"
 	ScopeReadJobs   = "read:jobs"
 	ScopeWriteJobs  = "write:jobs"
 )
@@ -19,6 +20,7 @@ func GetAvailableScopes() []Scope {
 	return []Scope{
 		ScopeReadServer,
 		ScopeReadTubes,
+		ScopeWriteTubes,
 		ScopeReadJobs,
 		ScopeWriteJobs,
 	}

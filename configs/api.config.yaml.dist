@@ -41,5 +41,6 @@ security:
       scopes:
         - read:server
         - read:tubes
+        - write:tubes
         - read:jobs
         - write:jobs

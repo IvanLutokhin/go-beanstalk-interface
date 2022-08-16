@@ -156,6 +156,7 @@ func Default() *Config {
 					Scopes: []string{
 						"read:server",
 						"read:tubes",
+						"write:tubes",
 						"read:jobs",
 						"write:jobs",
 					},

@@ -11,15 +11,6 @@ import (
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
 
-type BuryJobInput struct {
-	ID       int `json:"id"`
-	Priority int `json:"priority"`
-}
-
-type BuryJobPayload struct {
-	ID int `json:"id"`
-}
-
 type CreateJobInput struct {
 	Tube     string `json:"tube"`
 	Priority int    `json:"priority"`
@@ -41,6 +32,15 @@ type DeleteJobPayload struct {
 	ID int `json:"id"`
 }
 
+type DeleteJobsInput struct {
+	Tube  string `json:"tube"`
+	Count *int   `json:"count"`
+}
+
+type DeleteJobsPayload struct {
+	Count int `json:"count"`
+}
+
 type Job struct {
 	ID    int                 `json:"id"`
 	Data  string              `json:"data"`
@@ -55,18 +55,26 @@ type KickJobPayload struct {
 	ID int `json:"id"`
 }
 
+type KickJobsInput struct {
+	Tube  string `json:"tube"`
+	Count *int   `json:"count"`
+}
+
+type KickJobsPayload struct {
+	Count int `json:"count"`
+}
+
 type Me struct {
 	User *security.User `json:"user"`
 }
 
-type ReleaseJobInput struct {
-	ID       int `json:"id"`
-	Priority int `json:"priority"`
-	Delay    int `json:"delay"`
+type PauseTubeInput struct {
+	Tube  string `json:"tube"`
+	Delay int    `json:"delay"`
 }
 
-type ReleaseJobPayload struct {
-	ID int `json:"id"`
+type PauseTubePayload struct {
+	Tube string `json:"tube"`
 }
 
 type Server struct {

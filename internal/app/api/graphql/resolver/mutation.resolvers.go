@@ -5,8 +5,10 @@ package resolver
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/IvanLutokhin/go-beanstalk"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/graphql/model"
 	"github.com/IvanLutokhin/go-beanstalk-interface/internal/app/api/security"
 )
@@ -33,23 +35,6 @@ func (r *mutationResolver) CreateJob(ctx context.Context, input *model.CreateJob
 	return &model.CreateJobPayload{Tube: tube, ID: id}, nil
 }
 
-func (r *mutationResolver) BuryJob(ctx context.Context, input *model.BuryJobInput) (*model.BuryJobPayload, error) {
-	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
-		return nil, err
-	}
-
-	client, release := r.BeanstalkClient()
-
-	defer release()
-
-	err := client.Bury(input.ID, uint32(input.Priority))
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.BuryJobPayload{ID: input.ID}, nil
-}
-
 func (r *mutationResolver) DeleteJob(ctx context.Context, input *model.DeleteJobInput) (*model.DeleteJobPayload, error) {
 	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
 		return nil, err
@@ -65,6 +50,47 @@ func (r *mutationResolver) DeleteJob(ctx context.Context, input *model.DeleteJob
 	}
 
 	return &model.DeleteJobPayload{ID: input.ID}, nil
+}
+
+func (r *mutationResolver) DeleteJobs(ctx context.Context, input *model.DeleteJobsInput) (*model.DeleteJobsPayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadTubes, security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
+		return nil, err
+	}
+
+	client, release := r.BeanstalkClient()
+
+	defer release()
+
+	if _, err := client.Use(input.Tube); err != nil {
+		return nil, err
+	}
+
+	count := input.Count
+
+	payload := &model.DeleteJobsPayload{Count: 0}
+
+	for {
+		peeked, err := client.PeekBuried()
+		if err != nil && !errors.Is(err, beanstalk.ErrNotFound) {
+			return payload, err
+		}
+
+		if peeked == nil {
+			break
+		}
+
+		if err := client.Delete(peeked.ID); err != nil {
+			return payload, err
+		}
+
+		payload.Count++
+
+		if count != nil && *count <= payload.Count {
+			break
+		}
+	}
+
+	return payload, nil
 }
 
 func (r *mutationResolver) KickJob(ctx context.Context, input *model.KickJobInput) (*model.KickJobPayload, error) {
@@ -84,8 +110,8 @@ func (r *mutationResolver) KickJob(ctx context.Context, input *model.KickJobInpu
 	return &model.KickJobPayload{ID: input.ID}, nil
 }
 
-func (r *mutationResolver) ReleaseJob(ctx context.Context, input *model.ReleaseJobInput) (*model.ReleaseJobPayload, error) {
-	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
+func (r *mutationResolver) KickJobs(ctx context.Context, input *model.KickJobsInput) (*model.KickJobsPayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadTubes, security.ScopeReadJobs, security.ScopeWriteJobs}); err != nil {
 		return nil, err
 	}
 
@@ -93,10 +119,51 @@ func (r *mutationResolver) ReleaseJob(ctx context.Context, input *model.ReleaseJ
 
 	defer release()
 
-	err := client.Release(input.ID, uint32(input.Priority), time.Duration(input.Delay))
+	if _, err := client.Use(input.Tube); err != nil {
+		return nil, err
+	}
+
+	count := input.Count
+
+	payload := &model.KickJobsPayload{Count: 0}
+
+	for {
+		peeked, err := client.PeekBuried()
+		if err != nil && !errors.Is(err, beanstalk.ErrNotFound) {
+			return payload, err
+		}
+
+		if peeked == nil {
+			break
+		}
+
+		if err := client.KickJob(peeked.ID); err != nil {
+			return payload, err
+		}
+
+		payload.Count++
+
+		if count != nil && *count <= payload.Count {
+			break
+		}
+	}
+
+	return payload, nil
+}
+
+func (r *mutationResolver) PauseTube(ctx context.Context, input *model.PauseTubeInput) (*model.PauseTubePayload, error) {
+	if err := r.AuthContext(ctx, []security.Scope{security.ScopeReadTubes, security.ScopeWriteTubes}); err != nil {
+		return nil, err
+	}
+
+	client, release := r.BeanstalkClient()
+
+	defer release()
+
+	err := client.PauseTube(input.Tube, time.Duration(input.Delay))
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.ReleaseJobPayload{ID: input.ID}, nil
+	return &model.PauseTubePayload{Tube: input.Tube}, nil
 }

@@ -55,7 +55,7 @@ func TestLoadOrDefault(t *testing.T) {
 		require.Len(t, c.Security.Users, 1, "security.users")
 		require.Equal(t, "admin", c.Security.Users[0].Name, "security.users[0].name")
 		require.Equal(t, "!plain:admin", c.Security.Users[0].Password, "security.users[0].password")
-		require.ElementsMatch(t, []string{"read:server", "read:tubes", "read:jobs", "write:jobs"}, c.Security.Users[0].Scopes, "security.users[0].scopes")
+		require.ElementsMatch(t, []string{"read:server", "read:tubes", "write:tubes", "read:jobs", "write:jobs"}, c.Security.Users[0].Scopes, "security.users[0].scopes")
 	})
 
 	t.Run("default", func(t *testing.T) {
@@ -97,6 +97,6 @@ func TestLoadOrDefault(t *testing.T) {
 		require.Len(t, c.Security.Users, 1, "security.users")
 		require.Equal(t, "admin", c.Security.Users[0].Name, "security.users[0].name")
 		require.Equal(t, "!plain:admin", c.Security.Users[0].Password, "security.users[0].password")
-		require.ElementsMatch(t, []string{"read:server", "read:tubes", "read:jobs", "write:jobs"}, c.Security.Users[0].Scopes, "security.users[0].scopes")
+		require.ElementsMatch(t, []string{"read:server", "read:tubes", "write:tubes", "read:jobs", "write:jobs"}, c.Security.Users[0].Scopes, "security.users[0].scopes")
 	})
 }
